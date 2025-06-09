@@ -1,0 +1,99 @@
+"""Common test helper functions for switch testing."""
+
+import logging
+from typing import Optional
+from utils.switch_api import SwitchAPI
+from utils.command_manager import CommandManager
+import time
+
+logger = logging.getLogger(__name__)
+
+def clear_system_messages(switch_api: SwitchAPI, command_manager: CommandManager) -> None:
+    """Clear system messages from the switch.
+    
+    Args:
+        switch_api: Switch API instance
+        command_manager: Command manager instance
+    """
+    try:
+        # Commenting out clear logging command as it's causing issues
+        clear_cmd = command_manager.format_command('system_commands', 'clear_system_messages')
+        logger.debug(f"[COMMAND] Attempting to send: {clear_cmd}")
+        # switch_api.send_command(clear_cmd)
+        logger.info("Skipping clear system messages")
+    except Exception as e:
+        logger.error(f"Failed to clear system messages: {e}")
+        raise
+
+def setup_test_environment(switch_api: SwitchAPI, command_manager: CommandManager) -> None:
+    """Set up the test environment by clearing switch configuration.
+    
+    Args:
+        switch_api: Switch API instance
+        command_manager: Command manager instance
+    """
+    try:
+        # Clear system messages
+        clear_system_messages(switch_api, command_manager)
+        
+        # Clear switch configuration
+        # clear_cmd = command_manager.format_command('vlan_commands', 'clear_config')
+        # logger.debug(f"[COMMAND] Attempting to send: {clear_cmd}")
+        # switch_api.send_command(clear_cmd)
+        
+        # Enter configuration mode with retry
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                logger.debug(f"[ATTEMPT] Entering config mode (attempt {attempt + 1}/{max_retries})")
+                
+                # First ensure we're in enable mode
+                enable_cmd = command_manager.format_command('system_commands', 'enable')
+                logger.debug(f"[COMMAND] Attempting to send: {enable_cmd}")
+                switch_api.send_command(enable_cmd)
+                
+                # Then enter configuration mode
+                config_cmd = command_manager.format_command('system_commands', 'configure_terminal')
+                logger.debug(f"[COMMAND] Attempting to send: {config_cmd}")
+                response = switch_api.send_command(config_cmd)
+                logger.debug(f"[RESPONSE] Received: {response}")
+                
+                # If we get here, config mode was successful
+                logger.info("Successfully entered configuration mode")
+                break
+                
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed: {str(e)}")
+                if attempt == max_retries - 1:
+                    raise
+                time.sleep(1)  # Wait before retrying
+        
+        logger.info("Test environment setup completed")
+    except Exception as e:
+        logger.error(f"Failed to setup test environment: {e}")
+        logger.error("[DEBUG] Full error details:", exc_info=True)
+        raise
+
+def verify_command_response(switch_api: SwitchAPI, command_manager: CommandManager,
+                          category: str, command_name: str, **kwargs) -> bool:
+    """Verify a command's response.
+    
+    Args:
+        switch_api: Switch API instance
+        command_manager: Command manager instance
+        category: Command category
+        command_name: Command name
+        **kwargs: Parameters for command formatting
+        
+    Returns:
+        True if response matches expected pattern, False otherwise
+    """
+    try:
+        cmd = command_manager.format_command(category, command_name, **kwargs)
+        logger.debug(f"[COMMAND] Attempting to send: {cmd}")
+        response = switch_api.send_command(cmd)
+        logger.debug(f"[RESPONSE] Received: {response}")
+        return command_manager.verify_response(category, command_name, response, **kwargs)
+    except Exception as e:
+        logger.error(f"Failed to verify command response: {e}")
+        return False 

@@ -1,0 +1,39 @@
+{
+    "mode": "CREATIVE",
+    "description": "Design decisions and exploration mode",
+    "rules": [
+        {
+            "id": "CREATIVE-001",
+            "name": "Design Exploration",
+            "description": "Explore multiple design options",
+            "actions": [
+                "Generate design alternatives",
+                "Document pros and cons",
+                "Evaluate trade-offs",
+                "Consider edge cases"
+            ]
+        },
+        {
+            "id": "CREATIVE-002",
+            "name": "Architecture Design",
+            "description": "Design system architecture",
+            "actions": [
+                "Define component interfaces",
+                "Plan data flow",
+                "Design error handling",
+                "Consider scalability"
+            ]
+        },
+        {
+            "id": "CREATIVE-003",
+            "name": "Design Validation",
+            "description": "Validate design decisions",
+            "actions": [
+                "Review against requirements",
+                "Check for potential issues",
+                "Validate with stakeholders",
+                "Document design decisions"
+            ]
+        }
+    ]
+} 

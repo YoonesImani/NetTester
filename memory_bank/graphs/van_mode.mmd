@@ -1,0 +1,29 @@
+graph TD
+    Start[Start VAN Mode] --> PlatformCheck[Platform Detection]
+    PlatformCheck --> FileCheck[File Verification]
+    FileCheck --> ComplexityCheck[Complexity Determination]
+    
+    PlatformCheck -->|Fail| Error1[Platform Error]
+    FileCheck -->|Fail| Error2[File Structure Error]
+    
+    ComplexityCheck -->|Level 1| L1[Quick Bug Fix]
+    ComplexityCheck -->|Level 2| L2[Simple Enhancement]
+    ComplexityCheck -->|Level 3| L3[Intermediate Feature]
+    ComplexityCheck -->|Level 4| L4[Complex System]
+    
+    L1 --> NextMode[Next Mode]
+    L2 --> NextMode
+    L3 --> NextMode
+    L4 --> NextMode
+    
+    style Start fill:#f9d77e,stroke:#d9b95c
+    style PlatformCheck fill:#a8d5ff,stroke:#88b5e0
+    style FileCheck fill:#a8d5ff,stroke:#88b5e0
+    style ComplexityCheck fill:#a8d5ff,stroke:#88b5e0
+    style Error1 fill:#ffcccc,stroke:#ff9999
+    style Error2 fill:#ffcccc,stroke:#ff9999
+    style L1 fill:#c5e8b7,stroke:#a5c897
+    style L2 fill:#c5e8b7,stroke:#a5c897
+    style L3 fill:#c5e8b7,stroke:#a5c897
+    style L4 fill:#c5e8b7,stroke:#a5c897
+    style NextMode fill:#d9b3ff,stroke:#b366ff 

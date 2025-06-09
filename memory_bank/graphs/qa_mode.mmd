@@ -1,0 +1,23 @@
+graph TD
+    Start[Start QA Mode] --> DepVerif[Dependency Verification]
+    DepVerif --> CodeQual[Code Quality]
+    CodeQual --> SysTest[System Testing]
+    
+    DepVerif -->|Failed| DepFix[Dependency Fixes]
+    CodeQual -->|Failed| QualFix[Quality Fixes]
+    SysTest -->|Failed| TestFix[Test Fixes]
+    
+    DepFix --> DepVerif
+    QualFix --> CodeQual
+    TestFix --> SysTest
+    
+    SysTest --> NextMode[Next Mode]
+    
+    style Start fill:#f9d77e,stroke:#d9b95c
+    style DepVerif fill:#a8d5ff,stroke:#88b5e0
+    style CodeQual fill:#a8d5ff,stroke:#88b5e0
+    style SysTest fill:#a8d5ff,stroke:#88b5e0
+    style DepFix fill:#ffcccc,stroke:#ff9999
+    style QualFix fill:#ffcccc,stroke:#ff9999
+    style TestFix fill:#ffcccc,stroke:#ff9999
+    style NextMode fill:#d9b3ff,stroke:#b366ff 

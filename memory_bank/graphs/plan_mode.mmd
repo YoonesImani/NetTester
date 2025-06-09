@@ -1,0 +1,23 @@
+graph TD
+    Start[Start PLAN Mode] --> ReqAnalysis[Requirements Analysis]
+    ReqAnalysis --> CompID[Component Identification]
+    CompID --> ImpStrategy[Implementation Strategy]
+    
+    ReqAnalysis -->|Incomplete| ReqReview[Requirements Review]
+    CompID -->|Incomplete| CompReview[Component Review]
+    ImpStrategy -->|Incomplete| StrategyReview[Strategy Review]
+    
+    ReqReview --> ReqAnalysis
+    CompReview --> CompID
+    StrategyReview --> ImpStrategy
+    
+    ImpStrategy --> NextMode[Next Mode]
+    
+    style Start fill:#f9d77e,stroke:#d9b95c
+    style ReqAnalysis fill:#a8d5ff,stroke:#88b5e0
+    style CompID fill:#a8d5ff,stroke:#88b5e0
+    style ImpStrategy fill:#a8d5ff,stroke:#88b5e0
+    style ReqReview fill:#ffcccc,stroke:#ff9999
+    style CompReview fill:#ffcccc,stroke:#ff9999
+    style StrategyReview fill:#ffcccc,stroke:#ff9999
+    style NextMode fill:#d9b3ff,stroke:#b366ff 

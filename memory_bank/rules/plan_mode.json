@@ -1,0 +1,39 @@
+{
+    "mode": "PLAN",
+    "description": "Task planning and requirements analysis mode",
+    "rules": [
+        {
+            "id": "PLAN-001",
+            "name": "Requirements Analysis",
+            "description": "Analyze and document task requirements",
+            "actions": [
+                "Identify core requirements",
+                "Document constraints",
+                "List dependencies",
+                "Define success criteria"
+            ]
+        },
+        {
+            "id": "PLAN-002",
+            "name": "Component Identification",
+            "description": "Break down task into manageable components",
+            "actions": [
+                "List required components",
+                "Identify component dependencies",
+                "Estimate component complexity",
+                "Prioritize components"
+            ]
+        },
+        {
+            "id": "PLAN-003",
+            "name": "Implementation Strategy",
+            "description": "Develop implementation approach",
+            "actions": [
+                "Define component order",
+                "Plan testing strategy",
+                "Identify potential risks",
+                "Create timeline estimates"
+            ]
+        }
+    ]
+} 

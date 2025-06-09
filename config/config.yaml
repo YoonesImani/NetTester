@@ -1,0 +1,55 @@
+switch:
+  connection_type: "serial"  # can be "ssh" or "serial"
+  
+  # SSH connection settings for Cisco 2960
+  ssh:
+    host: "192.168.1.1"  # Change this to your switch's IP address
+    username: "admin"     # Change this to your switch's username
+    password: "cisco"     # Change this to your switch's password
+    port: 22             # Default SSH port for Cisco switches
+    timeout: 10          # Connection timeout in seconds
+    enable_password: "cisco"  # Enable mode password (if different from login password)
+  
+  # Serial connection settings for Cisco 2960
+  serial:
+    port: "COM1"         # Windows example, use /dev/ttyUSB0 for Linux
+    baudrate: 9600       # Default console speed for Cisco 2960
+    timeout: 10          # Read timeout in seconds
+    parity: "N"         # No parity
+    stopbits: 1         # 1 stop bit
+    bytesize: 8         # 8 data bits
+    xonxoff: false      # No software flow control
+    rtscts: false       # No hardware flow control
+
+test:
+  vlan:
+    test_vlan_id: "100"
+    test_vlan_name: "TEST_VLAN"
+    test_ports:          # Update these to match your switch's interface names
+      - "Fa0/1"         # FastEthernet ports on 2960
+      - "Fa0/2"
+      - "Fa0/3"
+      - "Fa0/4"
+    trunk_ports:        # Ports to be configured as trunks
+      - "Fa0/24"       # Usually uplink ports
+    native_vlan: "1"    # Native VLAN for trunk ports
+  
+  mac_learning:
+    wait_time: 30       # seconds to wait for MAC learning
+    min_dynamic_entries: 1  # minimum number of dynamic entries expected
+    aging_time: 300     # MAC address aging time in seconds (default: 300)
+    clear_mac_table: true  # whether to clear MAC table before testing
+
+logging:
+  console_level: "DEBUG"
+  file_level: "DEBUG"
+  log_dir: "logs"
+
+switch_specific:
+  model: "WS-C2960-24TT-L"  # Catalyst 2960 24-port model
+  ios_version: "15.0(2)SE"   # Target IOS version
+  enable_portfast: true      # Enable portfast on access ports
+  enable_bpduguard: true    # Enable BPDU guard on access ports
+  management_vlan: "1"       # Management VLAN ID
+  backup_config: true        # Backup switch config before testing
+  restore_config: true       # Restore original config after testing 

@@ -1,0 +1,133 @@
+{
+    "vlan_commands": {
+        "create_vlan": {
+            "command": "vlan {vlan_id}",
+            "expected_response": "Switch(config-vlan)#"
+        },
+        "delete_vlan": {
+            "command": "no vlan {vlan_id}",
+            "expected_response": "Switch(config)#"
+        },
+        "show_vlan": {
+            "command": "show vlan",
+            "expected_response": "Switch#",
+            "parse_pattern": "VLAN\\s+{vlan_id}\\s+{vlan_name}"
+        },
+        "show_vlan_brief": {
+            "command": "show vlan brief",
+            "expected_response": "Switch#",
+            "parse_pattern": "VLAN\\s+{vlan_id}\\s+{vlan_name}"
+        },
+        "configure_interface": {
+            "command": "interface {interface}",
+            "expected_response": "Switch(config-if)#",
+            "subcommands": {
+                "switchport_mode": {
+                    "command": "switchport mode {mode}",
+                    "expected_response": "Switch(config-if)#"
+                },
+                "switchport_access_vlan": {
+                    "command": "switchport access vlan {vlan_id}",
+                    "expected_response": "Switch(config-if)#"
+                },
+                "switchport_trunk_allowed_vlan": {
+                    "command": "switchport trunk allowed vlan {vlan_list}",
+                    "expected_response": "Switch(config-if)#"
+                }
+            }
+        },
+        "show_interface_switchport": {
+            "command": "show interfaces {interface} switchport",
+            "expected_response": "Switch#",
+            "parse_pattern": "Access Mode VLAN:\\s+{vlan_id}"
+        },
+        "clear_config": {
+            "command": "write erase",
+            "expected_response": "Switch#"
+        }
+    },
+    "interface_commands": {
+        "configure_interface": {
+            "command": "interface {interface_name}",
+            "expected_response": "Switch(config-if)#",
+            "subcommands": {
+                "switchport_mode_access": {
+                    "command": "switchport mode access",
+                    "expected_response": "Switch(config-if)#"
+                },
+                "switchport_mode_trunk": {
+                    "command": "switchport mode trunk",
+                    "expected_response": "Switch(config-if)#"
+                },
+                "switchport_access_vlan": {
+                    "command": "switchport access vlan {vlan_id}",
+                    "expected_response": "Switch(config-if)#"
+                },
+                "switchport_trunk_allowed_vlan": {
+                    "command": "switchport trunk allowed vlan {vlan_list}",
+                    "expected_response": "Switch(config-if)#"
+                }
+            }
+        }
+    },
+    "mac_commands": {
+        "show_mac_address_table": {
+            "command": "show mac address-table",
+            "expected_response": "Mac Address Table",
+            "parse_pattern": "\\d+\\s+([0-9a-fA-F]{4}\\.[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4})\\s+\\S+\\s+\\S+"
+        },
+        "clear_mac_address_table": {
+            "command": "clear mac address-table dynamic",
+            "expected_response": "Switch#"
+        }
+    },
+    "spanning_tree_commands": {
+        "show_spanning_tree": {
+            "command": "show spanning-tree vlan {vlan}",
+            "expected_response": "VLAN{vlan}",
+            "parse_pattern": "\\S+\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+"
+        },
+        "configure_spanning_tree": {
+            "command": "spanning-tree mode {mode}",
+            "expected_response": "Switch(config)#",
+            "valid_modes": [
+                "pvst",
+                "rapid-pvst",
+                "mst"
+            ],
+            "subcommands": {
+                "priority": {
+                    "command": "spanning-tree vlan {vlan} priority {priority}",
+                    "expected_response": "Switch(config)#"
+                }
+            }
+        }
+    },
+    "system_commands": {
+        "show_version": {
+            "command": "show version",
+            "expected_response": "Cisco IOS Software",
+            "parse_pattern": "Version\\s+\\S+"
+        },
+        "show_running_config": {
+            "command": "show running-config",
+            "expected_response": "Current configuration",
+            "parse_pattern": ".*"
+        },
+        "configure_terminal": {
+            "command": "configure terminal",
+            "expected_response": "Switch(config)#"
+        },
+        "clear_system_messages": {
+            "command": "clear logging",
+            "expected_response": "Switch#"
+        }
+    },
+    "new_feature_commands": {
+        "new_command": {
+            "command": "new command {param}",
+            "expected_response": "Expected response",
+            "parse_pattern": "pattern"
+        }
+    }
+}

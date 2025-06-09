@@ -1,0 +1,53 @@
+{
+    "mode": "VAN",
+    "description": "Initialization and setup mode",
+    "rules": [
+        {
+            "id": "VAN-001",
+            "name": "Platform Detection",
+            "description": "Detect and verify the operating system and environment",
+            "actions": [
+                "Check OS version",
+                "Verify Python installation",
+                "Validate workspace structure"
+            ]
+        },
+        {
+            "id": "VAN-002",
+            "name": "File Verification",
+            "description": "Verify essential project files and directories",
+            "actions": [
+                "Check for requirements.txt",
+                "Verify main.py existence",
+                "Validate directory structure"
+            ]
+        },
+        {
+            "id": "VAN-003",
+            "name": "Complexity Determination",
+            "description": "Determine the complexity level of the current task",
+            "levels": [
+                {
+                    "level": 1,
+                    "description": "Quick Bug Fix",
+                    "requirements": ["Basic file access", "Simple code modification"]
+                },
+                {
+                    "level": 2,
+                    "description": "Simple Enhancement",
+                    "requirements": ["Multiple file access", "Basic testing"]
+                },
+                {
+                    "level": 3,
+                    "description": "Intermediate Feature",
+                    "requirements": ["Complex file interactions", "Comprehensive testing"]
+                },
+                {
+                    "level": 4,
+                    "description": "Complex System",
+                    "requirements": ["System-wide changes", "Full test suite", "Documentation"]
+                }
+            ]
+        }
+    ]
+} 

@@ -1,0 +1,39 @@
+{
+    "mode": "QA",
+    "description": "Technical validation and testing mode",
+    "rules": [
+        {
+            "id": "QA-001",
+            "name": "Dependency Verification",
+            "description": "Verify all dependencies and requirements",
+            "actions": [
+                "Check package versions",
+                "Verify system requirements",
+                "Validate configuration",
+                "Check for conflicts"
+            ]
+        },
+        {
+            "id": "QA-002",
+            "name": "Code Quality",
+            "description": "Verify code quality and standards",
+            "actions": [
+                "Run linters",
+                "Check code style",
+                "Verify documentation",
+                "Review error handling"
+            ]
+        },
+        {
+            "id": "QA-003",
+            "name": "System Testing",
+            "description": "Perform comprehensive system testing",
+            "actions": [
+                "Run full test suite",
+                "Perform stress testing",
+                "Check edge cases",
+                "Verify error recovery"
+            ]
+        }
+    ]
+} 

@@ -1,0 +1,39 @@
+{
+    "mode": "IMPLEMENT",
+    "description": "Code implementation mode",
+    "rules": [
+        {
+            "id": "IMPLEMENT-001",
+            "name": "Code Structure",
+            "description": "Implement code structure and organization",
+            "actions": [
+                "Create necessary files",
+                "Set up imports",
+                "Define class structure",
+                "Implement interfaces"
+            ]
+        },
+        {
+            "id": "IMPLEMENT-002",
+            "name": "Core Implementation",
+            "description": "Implement core functionality",
+            "actions": [
+                "Write main logic",
+                "Implement error handling",
+                "Add logging",
+                "Follow coding standards"
+            ]
+        },
+        {
+            "id": "IMPLEMENT-003",
+            "name": "Testing",
+            "description": "Implement and run tests",
+            "actions": [
+                "Write unit tests",
+                "Implement integration tests",
+                "Run test suite",
+                "Fix failing tests"
+            ]
+        }
+    ]
+} 

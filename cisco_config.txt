@@ -1,0 +1,140 @@
+!
+! L2 Switch Testing Framework Configuration
+! Generated configuration for Cisco 2960 switch
+!
+
+! Basic switch configuration
+hostname L2_TEST_SWITCH
+!
+! Enable secret (if needed)
+! enable secret 0 cisco
+!
+! Console configuration
+line console 0
+ logging synchronous
+ login
+!
+! VTY configuration
+line vty 0 15
+ logging synchronous
+ login
+!
+! VLAN configurations
+!
+! Basic VLANs
+vlan 10
+ name TEST_VLAN_10
+!
+vlan 20
+ name TEST_VLAN_20
+!
+vlan 30
+ name TEST_VLAN_30
+!
+! Test VLAN 100 (used in test cases)
+vlan 100
+ name TEST_PORT_VLAN
+!
+! Trunk Test VLANs
+vlan 200
+ name TRUNK_VLAN_1
+!
+vlan 300
+ name TRUNK_VLAN_2
+!
+! Voice VLAN
+vlan 150
+ name VOICE_VLAN
+!
+! Private VLANs
+vlan 400
+ name PVLAN_PRIMARY
+ private-vlan primary
+ private-vlan association 401,402
+!
+vlan 401
+ name PVLAN_ISOLATED
+ private-vlan isolated
+!
+vlan 402
+ name PVLAN_COMMUNITY
+ private-vlan community
+!
+! Interface configurations
+!
+! Access port configuration
+interface FastEthernet0/1
+ switchport mode access
+ switchport access vlan 100
+ switchport voice vlan 150
+ mls qos trust cos
+ no shutdown
+!
+! Trunk port configuration
+interface FastEthernet0/24
+ switchport mode trunk
+ switchport trunk native vlan 1
+ switchport trunk allowed vlan 10,20,30,100,150,200,300,400,401,402
+ no shutdown
+!
+! PVLAN port configurations
+interface FastEthernet0/2
+ switchport mode private-vlan promiscuous
+ switchport private-vlan mapping 400 401,402
+ no shutdown
+!
+interface FastEthernet0/3
+ switchport mode private-vlan host
+ switchport private-vlan host-association 400 401
+ no shutdown
+!
+interface FastEthernet0/4
+ switchport mode private-vlan host
+ switchport private-vlan host-association 400 402
+ no shutdown
+!
+! SVI configurations
+interface Vlan10
+ description TEST_SVI_10
+ ip address 192.168.10.1 255.255.255.0
+ no shutdown
+!
+interface Vlan20
+ description TEST_SVI_20
+ ip address 192.168.20.1 255.255.255.0
+ no shutdown
+!
+interface Vlan100
+ description TEST_SVI_100
+ ip address 192.168.100.1 255.255.255.0
+ no shutdown
+!
+! VLAN ACL configuration
+ip access-list extended VLAN_ACL
+ permit ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
+!
+vlan access-map VLAN_ACL_MAP 10
+ match ip address VLAN_ACL
+ action drop
+!
+vlan filter VLAN_ACL_MAP vlan-list 10
+!
+
+# MAC Learning Test Configuration
+mac_learning:
+  wait_time: 30  # Time to wait for MAC learning in seconds
+  min_dynamic_entries: 1  # Minimum number of dynamic entries expected
+  test_mac: "0000.0000.0001"  # Test MAC address for filtering
+  test_vlan: "1"  # Test VLAN for MAC filtering
+  test_port: "Fa0/1"  # Test port for MAC security
+  port_security:
+    max_macs: 1  # Maximum number of MAC addresses allowed
+    violation_action: "restrict"  # Action on violation (restrict, shutdown, protect)
+  mac_notification:
+    enabled: true  # Enable MAC address notification
+  mac_filtering:
+    enabled: true  # Enable MAC address filtering
+    action: "drop"  # Action for filtered MACs (drop, forward)
+
+! Save configuration
+write memory 

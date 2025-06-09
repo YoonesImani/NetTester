@@ -1,0 +1,72 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# STP Testing Rules
+
+## Test Requirements
+
+### Mode Testing
+- All STP modes (PVST+, Rapid-PVST+, MST) must be tested
+- Each mode change should include a convergence delay
+- Mode verification should handle different output formats
+- Test should continue even if one mode fails
+
+### Root Bridge Testing
+- Test root bridge election with different priorities
+- Verify root bridge status across all VLANs
+- Check root port assignments
+- Verify root path cost calculations
+
+### Port Configuration Testing
+- Test port cost configuration
+- Test port priority configuration
+- Verify port roles (root, designated, alternate)
+- Test port state transitions
+
+### Protection Features
+- Test BPDU Guard
+- Test Root Guard
+- Test Loop Guard
+- Verify guard feature status
+
+### Convergence Testing
+- Test topology change handling
+- Verify convergence time
+- Check port state transitions
+- Monitor for any loops
+
+## Error Handling
+- All test failures must be logged
+- Test suite should continue despite individual test failures
+- Detailed error messages must be provided
+- Test summary must show all pass/fail results
+
+## Output Requirements
+- Each test must provide clear pass/fail status
+- Error messages must be descriptive
+- Test summary must show all test results
+- Final status must reflect overall test success/failure
+
+## Verification Methods
+- Use appropriate show commands for verification
+- Handle different output formats
+- Implement flexible pattern matching
+- Provide detailed verification results
+
+## Test Flow
+1. Test all STP modes
+2. Configure and verify root bridge
+3. Test port configurations
+4. Verify protection features
+5. Test convergence behavior
+6. Generate test summary
+
+## Success Criteria
+- All configured features must be verified
+- No STP loops should be detected
+- Port states should be correct
+- Protection features should be active
+- Convergence should complete successfully
+

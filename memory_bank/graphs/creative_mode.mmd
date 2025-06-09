@@ -1,0 +1,23 @@
+graph TD
+    Start[Start CREATIVE Mode] --> DesignExpl[Design Exploration]
+    DesignExpl --> ArchDesign[Architecture Design]
+    ArchDesign --> DesignValid[Design Validation]
+    
+    DesignExpl -->|Incomplete| DesignReview[Design Review]
+    ArchDesign -->|Incomplete| ArchReview[Architecture Review]
+    DesignValid -->|Invalid| ValidReview[Validation Review]
+    
+    DesignReview --> DesignExpl
+    ArchReview --> ArchDesign
+    ValidReview --> DesignValid
+    
+    DesignValid --> NextMode[Next Mode]
+    
+    style Start fill:#f9d77e,stroke:#d9b95c
+    style DesignExpl fill:#a8d5ff,stroke:#88b5e0
+    style ArchDesign fill:#a8d5ff,stroke:#88b5e0
+    style DesignValid fill:#a8d5ff,stroke:#88b5e0
+    style DesignReview fill:#ffcccc,stroke:#ff9999
+    style ArchReview fill:#ffcccc,stroke:#ff9999
+    style ValidReview fill:#ffcccc,stroke:#ff9999
+    style NextMode fill:#d9b3ff,stroke:#b366ff 
