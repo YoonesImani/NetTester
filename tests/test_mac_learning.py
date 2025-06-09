@@ -84,6 +84,14 @@ def test_mac_learning(switch_api: SwitchAPI, command_manager: CommandManager, lo
                                                 vlan_id=10)
         switch_api.send_command(vlan_cmd)
         
+        # Exit interface configuration
+        switch_api.send_command("exit")
+        time.sleep(1)
+        
+        # Exit configuration mode
+        switch_api.send_command("end")
+        time.sleep(1)
+        
         # Verify MAC learning
         test_mac = "00:11:22:33:44:55"
         assert verify_mac_address(switch_api, command_manager, test_mac, 10), \

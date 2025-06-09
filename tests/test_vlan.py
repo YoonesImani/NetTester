@@ -164,6 +164,14 @@ def test_vlan_port_assignment(switch_api: SwitchAPI, command_manager: CommandMan
         response = switch_api.send_command(vlan_cmd)
         assert "Invalid input" not in response, f"Failed to assign VLAN {vlan_id} to port: {response}"
         
+        # Exit interface configuration
+        switch_api.send_command("exit")
+        time.sleep(1)
+        
+        # Exit configuration mode
+        switch_api.send_command("end")
+        time.sleep(1)
+        
         # Verify port assignment
         logger.debug("Verifying port assignment")
         show_cmd = command_manager.format_command('vlan_commands', 'show_interface_switchport', interface=interface)

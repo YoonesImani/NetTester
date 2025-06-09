@@ -75,6 +75,20 @@ class SerialConnection(SwitchConnectionBase):
         self.serial = None
         self.in_enable_mode = False
         self.in_config_mode = False
+        
+        # Update prompt patterns to be more flexible
+        self.USER_PROMPT = r'[a-zA-Z0-9\-_]+>\s*$'
+        self.ENABLE_PROMPT = r'[a-zA-Z0-9\-_]+#\s*$'
+        self.CONFIG_PROMPT = r'[a-zA-Z0-9\-_]+\(config\)#\s*$'
+        self.INTERFACE_PROMPT = r'[a-zA-Z0-9\-_]+\(config-if\)#\s*$'
+        self.VLAN_PROMPT = r'[a-zA-Z0-9\-_]+\(config-vlan\)#\s*$'
+        self.PASSWORD_PROMPT = r'Password:\s*$'
+        self.INITIAL_PROMPTS = [
+            r'Press RETURN to get started',
+            r'Initial configuration dialog\? \[yes/no\]:',
+            self.USER_PROMPT,
+            self.ENABLE_PROMPT
+        ]
     
     def _read_until(self, expected_patterns: list, timeout: int = None) -> Tuple[str, str]:
         """
@@ -105,6 +119,9 @@ class SerialConnection(SwitchConnectionBase):
                     # Check for pattern matches
                     for pattern in expected_patterns:
                         if re.search(pattern, output, re.MULTILINE):
+                            # Log the matched pattern for debugging
+                            logger.debug(f"Matched pattern: {pattern}")
+                            logger.debug(f"Output: {output}")
                             return output, pattern
                 except UnicodeDecodeError:
                     continue
@@ -117,6 +134,10 @@ class SerialConnection(SwitchConnectionBase):
                 output += remaining
         except:
             pass
+            
+        # Log the full output for debugging
+        logger.debug(f"Timeout waiting for patterns: {expected_patterns}")
+        logger.debug(f"Got output: {output}")
             
         raise SerialConnectionError(f"Timeout waiting for patterns: {expected_patterns}. Got: {output}")
     
@@ -160,14 +181,14 @@ class SerialConnection(SwitchConnectionBase):
             
         try:
             # Send enable command
-            self.serial.write(b'enable\r\n')
+            self.serial.write(b'enable\n')
             output, pattern = self._read_until([self.ENABLE_PROMPT, self.PASSWORD_PROMPT])
             
             # If we get a password prompt, we don't need to enter a password
             # since we're using a non-secure connection
             if pattern == self.PASSWORD_PROMPT:
                 # Just press enter to continue
-                self.serial.write(b'\r\n')
+                self.serial.write(b'\n')
                 output, pattern = self._read_until([self.ENABLE_PROMPT])
             
             if pattern != self.ENABLE_PROMPT:
@@ -283,8 +304,30 @@ class SerialConnection(SwitchConnectionBase):
             
             # Handle config mode
             if command.strip() == "configure terminal":
-                self.in_config_mode = True
-                logger.debug("Entering config mode")
+                # Clear buffers before entering config mode
+                self.serial.reset_input_buffer()
+                self.serial.reset_output_buffer()
+                time.sleep(0.5)  # Give time for buffers to clear
+                
+                # Send command and wait for config prompt
+                self.serial.write(f"{command}\r\n".encode())
+                output, pattern = self._read_until([self.CONFIG_PROMPT])
+                
+                # Only set config mode if we got the expected prompt
+                if pattern == self.CONFIG_PROMPT:
+                    self.in_config_mode = True
+                    logger.debug("Entering config mode")
+                else:
+                    raise CommandError("Failed to enter config mode")
+                
+                # Return the output without the prompt
+                lines = output.splitlines()
+                if lines and lines[0].strip() == command.strip():
+                    lines = lines[1:]
+                if lines and re.match(self.CONFIG_PROMPT, lines[-1]):
+                    lines = lines[:-1]
+                return '\n'.join(lines).strip()
+                
             elif command.strip() in ["end", "exit"] and self.in_config_mode:
                 self.in_config_mode = False
                 logger.debug("Exiting config mode")

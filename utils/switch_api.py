@@ -99,19 +99,19 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise VLANOperationError("Not connected to switch")
             
             # Enter configuration mode
             logger.info("Entering config mode")
             config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
-            self._conn.send_command(config_cmd)
+            self._connection.send_command(config_cmd)
             time.sleep(2)
             
             # Create VLAN
             logger.info(f"Creating VLAN {vlan_id}")
             vlan_cmd = self._command_manager.format_command('vlan_commands', 'create_vlan', vlan_id=vlan_id)
-            self._conn.send_command(vlan_cmd)
+            self._connection.send_command(vlan_cmd)
             time.sleep(2)
             
             # Set VLAN name if provided
@@ -119,15 +119,15 @@ class SwitchAPI:
                 logger.info(f"Setting VLAN name to {name}")
                 name_cmd = self._command_manager.format_command('vlan_commands', 'create_vlan', 
                                                              vlan_id=vlan_id, vlan_name=name)
-                self._conn.send_command(name_cmd)
+                self._connection.send_command(name_cmd)
                 time.sleep(2)
             
             # Exit VLAN configuration
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Exit configuration mode
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             return True, ""
@@ -145,23 +145,23 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise VLANOperationError("Not connected to switch")
             
             # Enter configuration mode
             logger.info("Entering config mode")
             config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
-            self._conn.send_command(config_cmd)
+            self._connection.send_command(config_cmd)
             time.sleep(2)
             
             # Delete VLAN
             logger.info(f"Deleting VLAN {vlan_id}")
             delete_cmd = self._command_manager.format_command('vlan_commands', 'delete_vlan', vlan_id=vlan_id)
-            self._conn.send_command(delete_cmd)
+            self._connection.send_command(delete_cmd)
             time.sleep(2)
             
             # Exit configuration mode
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             return True, ""
@@ -179,20 +179,20 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise PortConfigurationError("Not connected to switch")
             
             # Enter configuration mode
             logger.info("Entering config mode")
             config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
-            self._conn.send_command(config_cmd)
+            self._connection.send_command(config_cmd)
             time.sleep(2)
             
             # Enter interface configuration
             logger.info(f"Configuring interface {interface}")
             interface_cmd = self._command_manager.format_command('vlan_commands', 'configure_interface', 
                                                               interface=interface)
-            self._conn.send_command(interface_cmd)
+            self._connection.send_command(interface_cmd)
             time.sleep(2)
             
             return True, ""
@@ -212,7 +212,7 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise PortConfigurationError("Not connected to switch")
             
             # Validate mode
@@ -229,7 +229,7 @@ class SwitchAPI:
             
             # Check if VLAN exists
             show_cmd = self._command_manager.format_command('vlan_commands', 'show_vlan')
-            output = self._conn.send_command(show_cmd)
+            output = self._connection.send_command(show_cmd)
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to check VLAN existence: {output}"
             
@@ -239,14 +239,14 @@ class SwitchAPI:
             # Enter configuration mode
             logger.info("Entering config mode")
             config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
-            self._conn.send_command(config_cmd)
+            self._connection.send_command(config_cmd)
             time.sleep(2)
             
             # Enter interface configuration
             logger.info(f"Configuring interface {port}")
             interface_cmd = self._command_manager.format_command('vlan_commands', 'configure_interface', 
                                                               interface=port)
-            self._conn.send_command(interface_cmd)
+            self._connection.send_command(interface_cmd)
             time.sleep(2)
             
             # Configure port mode
@@ -254,7 +254,7 @@ class SwitchAPI:
                                                          interface=port,
                                                          subcommand='switchport_mode',
                                                          mode=mode)
-            self._conn.send_command(mode_cmd)
+            self._connection.send_command(mode_cmd)
             time.sleep(2)
             
             # Configure VLAN assignment
@@ -268,19 +268,19 @@ class SwitchAPI:
                                                              interface=port,
                                                              subcommand='switchport_trunk_allowed_vlan',
                                                              vlan_list=vlan_id)
-            self._conn.send_command(vlan_cmd)
+            self._connection.send_command(vlan_cmd)
             time.sleep(2)
             
             # Enable interface
-            self._conn.send_command("no shutdown")
+            self._connection.send_command("no shutdown")
             time.sleep(2)
             
             # Exit interface configuration
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Exit configuration mode
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             return True, ""
@@ -299,10 +299,10 @@ class SwitchAPI:
             MACTableError: If unable to get MAC table
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise MACTableError("Not connected to switch")
             
-            output = self._conn.send_command("show mac address-table")
+            output = self._connection.send_command("show mac address-table")
             return output, ""
             
         except MACTableError as e:
@@ -321,13 +321,13 @@ class SwitchAPI:
             MACTableError: If unable to clear MAC table
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise MACTableError("Not connected to switch")
             
-            self._conn.send_command("clear mac address-table dynamic")
+            self._connection.send_command("clear mac address-table dynamic")
             
             # Verify table was cleared
-            output = self._conn.send_command("show mac address-table")
+            output = self._connection.send_command("show mac address-table")
             if "dynamic" in output.lower():
                 raise MACTableError("Failed to clear dynamic MAC entries")
             
@@ -352,50 +352,50 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise PortConfigurationError("Not connected to switch")
             
             # Enter configuration mode
             logger.info("Entering config mode")
-            self._conn.send_command("configure terminal")
+            self._connection.send_command("configure terminal")
             time.sleep(2)
             
             # Enter interface configuration
             logger.info(f"Configuring interface {port}")
-            self._conn.send_command(f"interface {port}")
+            self._connection.send_command(f"interface {port}")
             time.sleep(2)
             
             # Configure trunk mode
             logger.info("Setting trunk mode")
-            self._conn.send_command("switchport mode trunk")
+            self._connection.send_command("switchport mode trunk")
             time.sleep(2)
             
             # Configure native VLAN
             logger.info(f"Setting native VLAN {native_vlan}")
-            self._conn.send_command(f"switchport trunk native vlan {native_vlan}")
+            self._connection.send_command(f"switchport trunk native vlan {native_vlan}")
             time.sleep(2)
             
             # Configure allowed VLANs
             logger.info(f"Setting allowed VLANs: {allowed_vlans}")
-            self._conn.send_command(f"switchport trunk allowed vlan {allowed_vlans}")
+            self._connection.send_command(f"switchport trunk allowed vlan {allowed_vlans}")
             time.sleep(2)
             
             # Enable interface
             logger.info("Enabling interface")
-            self._conn.send_command("no shutdown")
+            self._connection.send_command("no shutdown")
             time.sleep(2)
             
             # Exit interface configuration
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Exit configuration mode
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Check interface status first
             logger.info("Checking interface status")
-            status_output = self._conn.send_command(f"show interfaces {port} status")
+            status_output = self._connection.send_command(f"show interfaces {port} status")
             logger.debug(f"Interface status output:\n{status_output}")
             
             if "notconnect" in status_output.lower() or "disabled" in status_output.lower():
@@ -404,7 +404,7 @@ class SwitchAPI:
             
             # Verify trunk configuration
             logger.info("Verifying trunk configuration")
-            output = self._conn.send_command(f"show interfaces {port} trunk")
+            output = self._connection.send_command(f"show interfaces {port} trunk")
             logger.debug(f"Trunk configuration output:\n{output}")
             
             if "trunking" not in output.lower():
@@ -436,41 +436,41 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise VLANOperationError("Not connected to switch")
             
             # Enter configuration mode
             logger.info("Entering config mode")
-            self._conn.send_command("configure terminal")
+            self._connection.send_command("configure terminal")
             time.sleep(2)
             
             # Enter interface configuration
             logger.info(f"Configuring interface vlan {vlan_id}")
-            self._conn.send_command(f"interface vlan {vlan_id}")
+            self._connection.send_command(f"interface vlan {vlan_id}")
             time.sleep(2)
             
             # Configure IP address
             logger.info(f"Setting IP address {ip_address} {subnet_mask}")
-            self._conn.send_command(f"ip address {ip_address} {subnet_mask}")
+            self._connection.send_command(f"ip address {ip_address} {subnet_mask}")
             time.sleep(2)
             
             # Configure description if provided
             if description:
                 logger.info(f"Setting description: {description}")
-                self._conn.send_command(f"description {description}")
+                self._connection.send_command(f"description {description}")
                 time.sleep(2)
             
             # Exit interface configuration
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Exit configuration mode
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Verify configuration
             logger.info("Verifying SVI configuration")
-            output = self._conn.send_command(f"show interfaces vlan {vlan_id}")
+            output = self._connection.send_command(f"show interfaces vlan {vlan_id}")
             logger.debug(f"SVI configuration output:\n{output}")
             
             if ip_address not in output:
@@ -514,49 +514,49 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise PortConfigurationError("Not connected to switch")
             
             # Enter configuration mode
             logger.info("Entering config mode")
-            self._conn.send_command("configure terminal")
+            self._connection.send_command("configure terminal")
             time.sleep(2)
             
             # Enter interface configuration
             logger.info(f"Configuring interface {port}")
-            self._conn.send_command(f"interface {port}")
+            self._connection.send_command(f"interface {port}")
             time.sleep(2)
             
             # Configure access mode and data VLAN
             logger.info("Setting access mode")
-            self._conn.send_command("switchport mode access")
+            self._connection.send_command("switchport mode access")
             time.sleep(2)
             
             logger.info(f"Setting access VLAN {data_vlan}")
-            self._conn.send_command(f"switchport access vlan {data_vlan}")
+            self._connection.send_command(f"switchport access vlan {data_vlan}")
             time.sleep(2)
             
             # Configure voice VLAN
             logger.info(f"Setting voice VLAN {voice_vlan}")
-            self._conn.send_command(f"switchport voice vlan {voice_vlan}")
+            self._connection.send_command(f"switchport voice vlan {voice_vlan}")
             time.sleep(2)
             
             # Configure QoS trust
             logger.info(f"Setting QoS trust mode: {qos_trust}")
-            self._conn.send_command(f"mls qos trust {qos_trust}")
+            self._connection.send_command(f"mls qos trust {qos_trust}")
             time.sleep(2)
             
             # Exit interface configuration
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Exit configuration mode
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Verify configuration
             logger.info("Verifying voice VLAN configuration")
-            output = self._conn.send_command(f"show interfaces {port} switchport")
+            output = self._connection.send_command(f"show interfaces {port} switchport")
             logger.debug(f"Voice VLAN configuration output:\n{output}")
             
             if f"Voice VLAN: {voice_vlan}" not in output:
@@ -583,57 +583,57 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise VLANOperationError("Not connected to switch")
             
             # Enter configuration mode
             logger.info("Entering config mode")
-            self._conn.send_command("configure terminal")
+            self._connection.send_command("configure terminal")
             time.sleep(2)
             
             # Configure primary VLAN
             logger.info(f"Configuring primary VLAN {primary_vlan}")
-            self._conn.send_command(f"vlan {primary_vlan}")
+            self._connection.send_command(f"vlan {primary_vlan}")
             time.sleep(2)
-            self._conn.send_command("private-vlan primary")
+            self._connection.send_command("private-vlan primary")
             time.sleep(2)
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Configure isolated VLAN
             logger.info(f"Configuring isolated VLAN {isolated_vlan}")
-            self._conn.send_command(f"vlan {isolated_vlan}")
+            self._connection.send_command(f"vlan {isolated_vlan}")
             time.sleep(2)
-            self._conn.send_command("private-vlan isolated")
+            self._connection.send_command("private-vlan isolated")
             time.sleep(2)
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Configure community VLAN
             logger.info(f"Configuring community VLAN {community_vlan}")
-            self._conn.send_command(f"vlan {community_vlan}")
+            self._connection.send_command(f"vlan {community_vlan}")
             time.sleep(2)
-            self._conn.send_command("private-vlan community")
+            self._connection.send_command("private-vlan community")
             time.sleep(2)
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Associate secondary VLANs with primary
             logger.info("Associating secondary VLANs with primary")
-            self._conn.send_command(f"vlan {primary_vlan}")
+            self._connection.send_command(f"vlan {primary_vlan}")
             time.sleep(2)
-            self._conn.send_command(f"private-vlan association {isolated_vlan},{community_vlan}")
+            self._connection.send_command(f"private-vlan association {isolated_vlan},{community_vlan}")
             time.sleep(2)
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Exit configuration mode
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Verify configuration
             logger.info("Verifying private VLAN configuration")
-            output = self._conn.send_command("show vlan private-vlan")
+            output = self._connection.send_command("show vlan private-vlan")
             logger.debug(f"Private VLAN configuration output:\n{output}")
             
             if f"Primary Secondary Type" not in output:
@@ -664,37 +664,37 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise VLANOperationError("Not connected to switch")
             
             # Enter configuration mode
             logger.info("Entering config mode")
-            self._conn.send_command("configure terminal")
+            self._connection.send_command("configure terminal")
             time.sleep(2)
             
             # Configure access-map
             logger.info(f"Configuring access-map {map_name}")
-            self._conn.send_command(f"vlan access-map {map_name} {sequence}")
+            self._connection.send_command(f"vlan access-map {map_name} {sequence}")
             time.sleep(2)
             
             # Configure match and action
             logger.info(f"Configuring match and action")
-            self._conn.send_command(f"match ip address {acl_name}")
+            self._connection.send_command(f"match ip address {acl_name}")
             time.sleep(2)
-            self._conn.send_command(f"action {action}")
+            self._connection.send_command(f"action {action}")
             time.sleep(2)
             
             # Exit access-map configuration
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Exit configuration mode
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Verify configuration
             logger.info("Verifying access-map configuration")
-            output = self._conn.send_command(f"show vlan access-map {map_name}")
+            output = self._connection.send_command(f"show vlan access-map {map_name}")
             logger.debug(f"Access-map configuration output:\n{output}")
             
             if map_name not in output:
@@ -717,35 +717,35 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise VLANOperationError("Not connected to switch")
             
             # Enter configuration mode
             logger.info("Entering config mode")
-            self._conn.send_command("configure terminal")
+            self._connection.send_command("configure terminal")
             time.sleep(2)
             
             # Enter VLAN configuration
             logger.info(f"Configuring VLAN {vlan_id}")
-            self._conn.send_command(f"vlan {vlan_id}")
+            self._connection.send_command(f"vlan {vlan_id}")
             time.sleep(2)
             
             # Apply access-map
             logger.info(f"Applying access-map {map_name}")
-            self._conn.send_command(f"vlan filter {map_name} vlan-list {vlan_id}")
+            self._connection.send_command(f"vlan filter {map_name} vlan-list {vlan_id}")
             time.sleep(2)
             
             # Exit VLAN configuration
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Exit configuration mode
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Verify configuration
             logger.info("Verifying access-map application")
-            output = self._conn.send_command("show vlan filter")
+            output = self._connection.send_command("show vlan filter")
             logger.debug(f"Access-map application output:\n{output}")
             
             if f"VLAN {vlan_id}" not in output:
@@ -769,19 +769,19 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise PortConfigurationError("Not connected to switch")
             
             # Check interface status first
             logger.info("Checking interface status")
-            status_output = self._conn.send_command(f"show interfaces {port} status")
+            status_output = self._connection.send_command(f"show interfaces {port} status")
             logger.debug(f"Interface status output:\n{status_output}")
             
             if "notconnect" in status_output.lower() or "disabled" in status_output.lower():
                 logger.warning(f"Interface {port} is down. Cannot verify trunk configuration.")
                 # Check administrative mode
                 logger.info("Checking administrative mode")
-                switchport_output = self._conn.send_command(f"show interfaces {port} switchport")
+                switchport_output = self._connection.send_command(f"show interfaces {port} switchport")
                 logger.debug(f"Switchport configuration output:\n{switchport_output}")
                 
                 if "Administrative Mode: trunk" not in switchport_output:
@@ -791,7 +791,7 @@ class SwitchAPI:
             else:
                 # Verify trunk configuration
                 logger.info("Verifying trunk configuration")
-                output = self._conn.send_command(f"show interfaces {port} trunk")
+                output = self._connection.send_command(f"show interfaces {port} trunk")
                 logger.debug(f"Trunk configuration output:\n{output}")
                 
                 if "trunking" not in output.lower():
@@ -820,35 +820,35 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise VLANOperationError("Not connected to switch")
             
             # Enter configuration mode
             logger.info("Entering config mode")
-            self._conn.send_command("configure terminal")
+            self._connection.send_command("configure terminal")
             time.sleep(2)
             
             # Enter interface configuration
             logger.info(f"Configuring interface vlan {vlan_id}")
-            self._conn.send_command(f"interface vlan {vlan_id}")
+            self._connection.send_command(f"interface vlan {vlan_id}")
             time.sleep(2)
             
             # Shutdown the interface
             logger.info("Shutting down SVI")
-            self._conn.send_command("shutdown")
+            self._connection.send_command("shutdown")
             time.sleep(2)
             
             # Exit interface configuration
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Exit configuration mode
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Verify shutdown
             logger.info("Verifying SVI shutdown")
-            output = self._conn.send_command(f"show interfaces vlan {vlan_id}")
+            output = self._connection.send_command(f"show interfaces vlan {vlan_id}")
             logger.debug(f"SVI status output:\n{output}")
             
             if "administratively down" not in output.lower():
@@ -870,35 +870,35 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise VLANOperationError("Not connected to switch")
             
             # Enter configuration mode
             logger.info("Entering config mode")
-            self._conn.send_command("configure terminal")
+            self._connection.send_command("configure terminal")
             time.sleep(2)
             
             # Enter interface configuration
             logger.info(f"Configuring interface vlan {vlan_id}")
-            self._conn.send_command(f"interface vlan {vlan_id}")
+            self._connection.send_command(f"interface vlan {vlan_id}")
             time.sleep(2)
             
             # Enable the interface
             logger.info("Enabling SVI")
-            self._conn.send_command("no shutdown")
+            self._connection.send_command("no shutdown")
             time.sleep(2)
             
             # Exit interface configuration
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Exit configuration mode
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Verify enable
             logger.info("Verifying SVI enable")
-            output = self._conn.send_command(f"show interfaces vlan {vlan_id}")
+            output = self._connection.send_command(f"show interfaces vlan {vlan_id}")
             logger.debug(f"SVI status output:\n{output}")
             
             if "administratively down" in output.lower():
@@ -922,12 +922,12 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise VLANOperationError("Not connected to switch")
             
             # Get SVI configuration
             logger.info(f"Verifying SVI {vlan_id} configuration")
-            output = self._conn.send_command(f"show interfaces vlan {vlan_id}")
+            output = self._connection.send_command(f"show interfaces vlan {vlan_id}")
             logger.debug(f"SVI configuration output:\n{output}")
             
             verification_details = []
@@ -989,12 +989,12 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise PortConfigurationError("Not connected to switch")
             
             # Check interface status first
             logger.info("Checking interface status")
-            status_output = self._conn.send_command(f"show interfaces {port} status")
+            status_output = self._connection.send_command(f"show interfaces {port} status")
             logger.debug(f"Interface status output:\n{status_output}")
             
             if "notconnect" in status_output.lower() or "disabled" in status_output.lower():
@@ -1003,7 +1003,7 @@ class SwitchAPI:
             
             # Get switchport configuration
             logger.info("Checking switchport configuration")
-            output = self._conn.send_command(f"show interfaces {port} switchport")
+            output = self._connection.send_command(f"show interfaces {port} switchport")
             logger.debug(f"Switchport configuration output:\n{output}")
             
             verification_details = []
@@ -1049,55 +1049,55 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise PortConfigurationError("Not connected to switch")
             
             # Enter configuration mode
             logger.info("Entering config mode")
-            self._conn.send_command("configure terminal")
+            self._connection.send_command("configure terminal")
             time.sleep(2)
             
             # Configure promiscuous port
             logger.info(f"Configuring promiscuous port {promiscuous_port}")
-            self._conn.send_command(f"interface {promiscuous_port}")
+            self._connection.send_command(f"interface {promiscuous_port}")
             time.sleep(2)
-            self._conn.send_command("switchport mode private-vlan promiscuous")
+            self._connection.send_command("switchport mode private-vlan promiscuous")
             time.sleep(2)
-            self._conn.send_command(f"switchport private-vlan mapping {primary_vlan} {isolated_vlan},{community_vlan}")
+            self._connection.send_command(f"switchport private-vlan mapping {primary_vlan} {isolated_vlan},{community_vlan}")
             time.sleep(2)
-            self._conn.send_command("no shutdown")
+            self._connection.send_command("no shutdown")
             time.sleep(2)
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Configure isolated port
             logger.info(f"Configuring isolated port {isolated_port}")
-            self._conn.send_command(f"interface {isolated_port}")
+            self._connection.send_command(f"interface {isolated_port}")
             time.sleep(2)
-            self._conn.send_command("switchport mode private-vlan host")
+            self._connection.send_command("switchport mode private-vlan host")
             time.sleep(2)
-            self._conn.send_command(f"switchport private-vlan host-association {primary_vlan} {isolated_vlan}")
+            self._connection.send_command(f"switchport private-vlan host-association {primary_vlan} {isolated_vlan}")
             time.sleep(2)
-            self._conn.send_command("no shutdown")
+            self._connection.send_command("no shutdown")
             time.sleep(2)
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Configure community port
             logger.info(f"Configuring community port {community_port}")
-            self._conn.send_command(f"interface {community_port}")
+            self._connection.send_command(f"interface {community_port}")
             time.sleep(2)
-            self._conn.send_command("switchport mode private-vlan host")
+            self._connection.send_command("switchport mode private-vlan host")
             time.sleep(2)
-            self._conn.send_command(f"switchport private-vlan host-association {primary_vlan} {community_vlan}")
+            self._connection.send_command(f"switchport private-vlan host-association {primary_vlan} {community_vlan}")
             time.sleep(2)
-            self._conn.send_command("no shutdown")
+            self._connection.send_command("no shutdown")
             time.sleep(2)
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Exit configuration mode
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             return True, ""
@@ -1118,14 +1118,14 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise VLANOperationError("Not connected to switch")
             
             verification_details = []
             
             # Verify private VLAN configuration
             logger.info("Verifying private VLAN configuration")
-            output = self._conn.send_command("show vlan private-vlan")
+            output = self._connection.send_command("show vlan private-vlan")
             logger.debug(f"Private VLAN configuration output:\n{output}")
             
             if f"Primary Secondary Type" not in output:
@@ -1139,7 +1139,7 @@ class SwitchAPI:
             
             # Verify port configurations
             logger.info("Verifying port configurations")
-            port_output = self._conn.send_command("show interfaces status")
+            port_output = self._connection.send_command("show interfaces status")
             logger.debug(f"Port status output:\n{port_output}")
             
             if verification_details:
@@ -1158,7 +1158,7 @@ class SwitchAPI:
             Tuple[str, str]: (model, ios_version)
         """
         try:
-            output = self._conn.send_command("show version")
+            output = self._connection.send_command("show version")
             
             # Parse output to extract model and IOS version
             model = None
@@ -1193,13 +1193,13 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise MACTableError("Not connected to switch")
             
             # Enter configuration mode
-            self._conn.send_command("configure terminal")
-            self._conn.send_command("mac address-table notification")
-            self._conn.send_command("exit")
+            self._connection.send_command("configure terminal")
+            self._connection.send_command("mac address-table notification")
+            self._connection.send_command("exit")
             
             return True, ""
             
@@ -1214,10 +1214,10 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise MACTableError("Not connected to switch")
             
-            output = self._conn.send_command("show mac address-table notification")
+            output = self._connection.send_command("show mac address-table notification")
             if "MAC address notification is enabled" not in output:
                 return False, "MAC notification is not enabled"
             
@@ -1238,13 +1238,13 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise MACTableError("Not connected to switch")
             
             # Enter configuration mode
-            self._conn.send_command("configure terminal")
-            self._conn.send_command(f"mac address-table static {mac_address} vlan {vlan} drop")
-            self._conn.send_command("exit")
+            self._connection.send_command("configure terminal")
+            self._connection.send_command(f"mac address-table static {mac_address} vlan {vlan} drop")
+            self._connection.send_command("exit")
             
             return True, ""
             
@@ -1263,10 +1263,10 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise MACTableError("Not connected to switch")
             
-            output = self._conn.send_command("show mac address-table static")
+            output = self._connection.send_command("show mac address-table static")
             if f"{mac_address} vlan {vlan} drop" not in output:
                 return False, f"MAC filtering not configured for {mac_address} in VLAN {vlan}"
             
@@ -1287,11 +1287,11 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise MACTableError("Not connected to switch")
             
             # Send test traffic and verify it's dropped
-            output = self._conn.send_command(f"show mac address-table static {mac_address} vlan {vlan}")
+            output = self._connection.send_command(f"show mac address-table static {mac_address} vlan {vlan}")
             if "drop" not in output.lower():
                 return False, f"MAC filtering not working for {mac_address} in VLAN {vlan}"
             
@@ -1311,17 +1311,17 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise MACTableError("Not connected to switch")
             
             # Enter configuration mode
-            self._conn.send_command("configure terminal")
-            self._conn.send_command(f"interface {port}")
-            self._conn.send_command("switchport port-security")
-            self._conn.send_command("switchport port-security maximum 1")
-            self._conn.send_command("switchport port-security violation restrict")
-            self._conn.send_command("exit")
-            self._conn.send_command("exit")
+            self._connection.send_command("configure terminal")
+            self._connection.send_command(f"interface {port}")
+            self._connection.send_command("switchport port-security")
+            self._connection.send_command("switchport port-security maximum 1")
+            self._connection.send_command("switchport port-security violation restrict")
+            self._connection.send_command("exit")
+            self._connection.send_command("exit")
             
             return True, ""
             
@@ -1339,10 +1339,10 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise MACTableError("Not connected to switch")
             
-            output = self._conn.send_command(f"show port-security interface {port}")
+            output = self._connection.send_command(f"show port-security interface {port}")
             if "Port Security: Enabled" not in output:
                 return False, f"Port security not enabled on {port}"
             
@@ -1362,11 +1362,11 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise MACTableError("Not connected to switch")
             
             # Verify security features are working
-            output = self._conn.send_command(f"show port-security interface {port}")
+            output = self._connection.send_command(f"show port-security interface {port}")
             if "Security Violation Count: 0" not in output:
                 return False, f"Security violation detected on {port}"
             
@@ -1386,28 +1386,28 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise STPError("Not connected to switch")
             
             # Enter enable mode
-            output = self._conn.send_command("enable")
+            output = self._connection.send_command("enable")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to enter enable mode: {output}"
             time.sleep(2)
             
             # Enter config mode
-            output = self._conn.send_command("configure terminal")
+            output = self._connection.send_command("configure terminal")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to enter config mode: {output}"
             time.sleep(2)
             
             # Configure STP mode
             if mode == "pvst":
-                output = self._conn.send_command("spanning-tree mode pvst")
+                output = self._connection.send_command("spanning-tree mode pvst")
             elif mode == "rapid-pvst":
-                output = self._conn.send_command("spanning-tree mode rapid-pvst")
+                output = self._connection.send_command("spanning-tree mode rapid-pvst")
             elif mode == "mst":
-                output = self._conn.send_command("spanning-tree mode mst")
+                output = self._connection.send_command("spanning-tree mode mst")
             else:
                 return False, f"Invalid STP mode: {mode}"
             
@@ -1417,7 +1417,7 @@ class SwitchAPI:
             time.sleep(2)
             
             # Exit config mode
-            output = self._conn.send_command("exit")
+            output = self._connection.send_command("exit")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to exit config mode: {output}"
             time.sleep(2)
@@ -1438,7 +1438,7 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            output = self._conn.send_command("show spanning-tree summary")
+            output = self._connection.send_command("show spanning-tree summary")
             # Convert both the output and expected mode to lowercase for case-insensitive comparison
             output_lower = output.lower()
             mode_lower = mode.lower()
@@ -1472,29 +1472,29 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise STPError("Not connected to switch")
             
             # Enter enable mode
-            output = self._conn.send_command("enable")
+            output = self._connection.send_command("enable")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to enter enable mode: {output}"
             time.sleep(2)
             
             # Enter config mode
-            output = self._conn.send_command("configure terminal")
+            output = self._connection.send_command("configure terminal")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to enter config mode: {output}"
             time.sleep(2)
             
             # Configure root bridge
-            output = self._conn.send_command(f"spanning-tree vlan {vlan} root primary")
+            output = self._connection.send_command(f"spanning-tree vlan {vlan} root primary")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to configure root bridge: {output}"
             time.sleep(2)
             
             # Exit config mode
-            output = self._conn.send_command("exit")
+            output = self._connection.send_command("exit")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to exit config mode: {output}"
             time.sleep(2)
@@ -1516,7 +1516,7 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            output = self._conn.send_command(f"show spanning-tree vlan {vlan}")
+            output = self._connection.send_command(f"show spanning-tree vlan {vlan}")
             # Look for priority in different possible formats
             priority_patterns = [
                 f"Priority {priority}",
@@ -1544,41 +1544,41 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise STPError("Not connected to switch")
             
             # Enter enable mode
-            output = self._conn.send_command("enable")
+            output = self._connection.send_command("enable")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to enter enable mode: {output}"
             time.sleep(2)
             
             # Enter config mode
-            output = self._conn.send_command("configure terminal")
+            output = self._connection.send_command("configure terminal")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to enter config mode: {output}"
             time.sleep(2)
             
             # Enter interface config mode
-            output = self._conn.send_command(f"interface {port}")
+            output = self._connection.send_command(f"interface {port}")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to enter interface config mode: {output}"
             time.sleep(2)
             
             # Configure port cost
-            output = self._conn.send_command(f"spanning-tree vlan {vlan} cost {cost}")
+            output = self._connection.send_command(f"spanning-tree vlan {vlan} cost {cost}")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to configure port cost: {output}"
             time.sleep(2)
             
             # Exit interface config mode
-            output = self._conn.send_command("exit")
+            output = self._connection.send_command("exit")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to exit interface config mode: {output}"
             time.sleep(2)
             
             # Exit global config mode
-            output = self._conn.send_command("exit")
+            output = self._connection.send_command("exit")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to exit config mode: {output}"
             time.sleep(2)
@@ -1601,7 +1601,7 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            output = self._conn.send_command(f"show spanning-tree vlan {vlan}")
+            output = self._connection.send_command(f"show spanning-tree vlan {vlan}")
             # Look for port cost in different possible formats
             cost_patterns = [
                 f"Cost {cost}",
@@ -1636,41 +1636,41 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise STPError("Not connected to switch")
             
             # Enter enable mode
-            output = self._conn.send_command("enable")
+            output = self._connection.send_command("enable")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to enter enable mode: {output}"
             time.sleep(2)
             
             # Enter config mode
-            output = self._conn.send_command("configure terminal")
+            output = self._connection.send_command("configure terminal")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to enter config mode: {output}"
             time.sleep(2)
             
             # Enter interface config mode
-            output = self._conn.send_command(f"interface {port}")
+            output = self._connection.send_command(f"interface {port}")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to enter interface config mode: {output}"
             time.sleep(2)
             
             # Configure port priority
-            output = self._conn.send_command(f"spanning-tree vlan {vlan} port-priority {priority}")
+            output = self._connection.send_command(f"spanning-tree vlan {vlan} port-priority {priority}")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to configure port priority: {output}"
             time.sleep(2)
             
             # Exit interface config mode
-            output = self._conn.send_command("exit")
+            output = self._connection.send_command("exit")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to exit interface config mode: {output}"
             time.sleep(2)
             
             # Exit global config mode
-            output = self._conn.send_command("exit")
+            output = self._connection.send_command("exit")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to exit config mode: {output}"
             time.sleep(2)
@@ -1693,7 +1693,7 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            output = self._conn.send_command(f"show spanning-tree vlan {vlan}")
+            output = self._connection.send_command(f"show spanning-tree vlan {vlan}")
             # Look for port priority in different possible formats
             priority_patterns = [
                 f"Priority {priority}",
@@ -1727,34 +1727,34 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            if not self._conn.is_connected():
+            if not self._connection.is_connected():
                 raise STPError("Not connected to switch")
             
             # Enter enable mode
-            output = self._conn.send_command("enable")
+            output = self._connection.send_command("enable")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to enter enable mode: {output}"
             time.sleep(2)
             
             # Enter config mode
-            output = self._conn.send_command("configure terminal")
+            output = self._connection.send_command("configure terminal")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to enter config mode: {output}"
             time.sleep(2)
             
             # Enter interface config mode
-            output = self._conn.send_command(f"interface {port}")
+            output = self._connection.send_command(f"interface {port}")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to enter interface config mode: {output}"
             time.sleep(2)
             
             # Configure guard
             if guard_type == "root":
-                output = self._conn.send_command("spanning-tree guard root")
+                output = self._connection.send_command("spanning-tree guard root")
             elif guard_type == "bpdu":
-                output = self._conn.send_command("spanning-tree bpduguard enable")
+                output = self._connection.send_command("spanning-tree bpduguard enable")
             elif guard_type == "loop":
-                output = self._conn.send_command("spanning-tree guard loop")
+                output = self._connection.send_command("spanning-tree guard loop")
             else:
                 return False, f"Invalid guard type: {guard_type}"
             
@@ -1764,13 +1764,13 @@ class SwitchAPI:
             time.sleep(2)
             
             # Exit interface config mode
-            output = self._conn.send_command("exit")
+            output = self._connection.send_command("exit")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to exit interface config mode: {output}"
             time.sleep(2)
             
             # Exit global config mode
-            output = self._conn.send_command("exit")
+            output = self._connection.send_command("exit")
             if "Invalid input" in output or "Error" in output:
                 return False, f"Failed to exit config mode: {output}"
             time.sleep(2)
@@ -1792,7 +1792,7 @@ class SwitchAPI:
             Tuple[bool, str]: (success status, error message if any)
         """
         try:
-            output = self._conn.send_command(f"show spanning-tree interface {port} detail")
+            output = self._connection.send_command(f"show spanning-tree interface {port} detail")
             # Define patterns for different guard types
             guard_patterns = {
                 "root": ["Root guard is enabled", "Root Guard: Enabled", "RootGuard: Enabled"],
@@ -1823,25 +1823,25 @@ class SwitchAPI:
         """
         try:
             # Get initial STP state
-            initial_state = self._conn.send_command(f"show spanning-tree vlan {vlan}")
+            initial_state = self._connection.send_command(f"show spanning-tree vlan {vlan}")
             time.sleep(2)
             
             # Simulate topology change
-            self._conn.send_command("configure terminal")
+            self._connection.send_command("configure terminal")
             time.sleep(2)
-            self._conn.send_command(f"interface Fa0/1")
+            self._connection.send_command(f"interface Fa0/1")
             time.sleep(5)  # Keep this at 5 seconds for topology change
-            self._conn.send_command("shutdown")
+            self._connection.send_command("shutdown")
             time.sleep(5)  # Keep this at 5 seconds for topology change
-            self._conn.send_command("no shutdown")
+            self._connection.send_command("no shutdown")
             time.sleep(5)  # Keep this at 5 seconds for topology change
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
-            self._conn.send_command("exit")
+            self._connection.send_command("exit")
             time.sleep(2)
             
             # Get final STP state
-            final_state = self._conn.send_command(f"show spanning-tree vlan {vlan}")
+            final_state = self._connection.send_command(f"show spanning-tree vlan {vlan}")
             
             # Verify convergence
             if "Blocking" in final_state and "Forwarding" in final_state:

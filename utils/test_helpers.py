@@ -33,14 +33,6 @@ def setup_test_environment(switch_api: SwitchAPI, command_manager: CommandManage
         command_manager: Command manager instance
     """
     try:
-        # Clear system messages
-        clear_system_messages(switch_api, command_manager)
-        
-        # Clear switch configuration
-        # clear_cmd = command_manager.format_command('vlan_commands', 'clear_config')
-        # logger.debug(f"[COMMAND] Attempting to send: {clear_cmd}")
-        # switch_api.send_command(clear_cmd)
-        
         # Enter configuration mode with retry
         max_retries = 3
         for attempt in range(max_retries):
@@ -51,12 +43,14 @@ def setup_test_environment(switch_api: SwitchAPI, command_manager: CommandManage
                 enable_cmd = command_manager.format_command('system_commands', 'enable')
                 logger.debug(f"[COMMAND] Attempting to send: {enable_cmd}")
                 switch_api.send_command(enable_cmd)
+                time.sleep(2)  # Wait for enable mode
                 
                 # Then enter configuration mode
                 config_cmd = command_manager.format_command('system_commands', 'configure_terminal')
                 logger.debug(f"[COMMAND] Attempting to send: {config_cmd}")
                 response = switch_api.send_command(config_cmd)
                 logger.debug(f"[RESPONSE] Received: {response}")
+                time.sleep(2)  # Wait for config mode
                 
                 # If we get here, config mode was successful
                 logger.info("Successfully entered configuration mode")
@@ -66,7 +60,12 @@ def setup_test_environment(switch_api: SwitchAPI, command_manager: CommandManage
                 logger.warning(f"Attempt {attempt + 1} failed: {str(e)}")
                 if attempt == max_retries - 1:
                     raise
-                time.sleep(1)  # Wait before retrying
+                time.sleep(2)  # Increased wait time between retries
+        
+        # Exit configuration mode
+        logger.debug("Exiting configuration mode")
+        switch_api.send_command("end")
+        time.sleep(1)  # Give time for the command to take effect
         
         logger.info("Test environment setup completed")
     except Exception as e:

@@ -118,8 +118,8 @@
             "command": "configure terminal",
             "expected_response": "Switch(config)#"
         },
-        "clear_system_messages": {
-            "command": "clear logging",
+        "enable": {
+            "command": "enable",
             "expected_response": "Switch#"
         }
     },
