@@ -195,17 +195,17 @@ def test_vlan_port_assignment(switch_api: SwitchAPI, command_manager: CommandMan
         
         # Configure interface
         logger.debug(f"Configuring interface {interface}")
-        interface_cmd = command_manager.format_command('vlan_commands', 'configure_interface', interface=interface)
+        interface_cmd = command_manager.format_command('interface_commands', 'configure_interface', interface=interface)
         success, error = switch_api.configure_interface(interface)
         assert success, f"Failed to configure interface {interface}: {error}"
         
         # Set port mode and assign VLAN
         logger.debug(f"Setting port mode and assigning VLAN {vlan_id} to {interface}")
-        mode_cmd = command_manager.format_command('vlan_commands', 'switchport_mode', mode='access')
+        mode_cmd = command_manager.format_command('interface_commands', 'switchport_mode', mode='access')
         response = switch_api.send_command(mode_cmd)
         assert "Invalid input" not in response, f"Failed to set port mode: {response}"
         
-        vlan_cmd = command_manager.format_command('vlan_commands', 'switchport_access_vlan', vlan_id=vlan_id)
+        vlan_cmd = command_manager.format_command('interface_commands', 'switchport_access_vlan', vlan_id=vlan_id)
         response = switch_api.send_command(vlan_cmd)
         assert "Invalid input" not in response, f"Failed to assign VLAN {vlan_id} to port: {response}"
         
@@ -427,7 +427,35 @@ def run(switch_api: SwitchAPI, command_manager: CommandManager, logger: logging.
             test_results.append(("VLAN Trunk Configuration", True))
         except Exception as e:
             test_results.append(("VLAN Trunk Configuration", False, str(e)))
+
+        # Test VLAN interface
+        try:
+            test_vlan_interface(switch_api, command_manager, logger)
+            test_results.append(("VLAN Interface", True))
+        except Exception as e:
+            test_results.append(("VLAN Interface", False, str(e)))
         
+        # Test Voice VLAN
+        try:
+            test_voice_vlan(switch_api, command_manager, logger)
+            test_results.append(("Voice VLAN", True))
+        except Exception as e:
+            test_results.append(("Voice VLAN", False, str(e)))
+
+        # Test VLAN ACL
+        try:
+            test_vlan_acl(switch_api, command_manager, logger)
+            test_results.append(("VLAN ACL", True))
+        except Exception as e:
+            test_results.append(("VLAN ACL", False, str(e)))
+
+        # Test Private VLAN
+
+        try:
+            test_private_vlan(switch_api, command_manager, logger)
+            test_results.append(("Private VLAN", True))
+        except Exception as e:
+            test_results.append(("Private VLAN", False, str(e)))
 
         # Log test results
         logger.info("\nVLAN Test Suite Results:")

@@ -21,25 +21,18 @@
             "expected_response": "Switch(config-vlan)#"
         },
         "configure_interface": {
-            "command": "interface {interface}",
+            "command": "interface vlan {vlan_id}",
             "expected_response": "Switch(config-if)#"
         },
-        "switchport_mode": {
-            "command": "switchport mode {mode}",
+        "ip_address": {
+            "command": "ip address {ip_address} {subnet_mask}",
             "expected_response": "Switch(config-if)#"
         },
-        "switchport_access_vlan": {
-            "command": "switchport access vlan {vlan_id}",
+        "description": {
+            "command": "description {description}",
             "expected_response": "Switch(config-if)#"
         },
-        "switchport_trunk_native_vlan": {
-            "command": "switchport trunk native vlan {vlan_id}",
-            "expected_response": "Switch(config-if)#"
-        },
-        "switchport_trunk_allowed_vlan": {
-            "command": "switchport trunk allowed vlan {vlan_list}",
-            "expected_response": "Switch(config-if)#"
-        },
+        
         "exit_interface": {
             "command": "exit",
             "expected_response": "Switch(config)#"
@@ -53,33 +46,39 @@
             "expected_response": "Switch#",
             "parse_pattern": "Access Mode VLAN:\\s+{vlan_id}"
         },
-        "clear_config": {
-            "command": "write erase",
+        "show_interface_vlan": {
+            "command": "show interfaces vlan {vlan_id}",
             "expected_response": "Switch#"
         }
     },
     "interface_commands": {
         "configure_interface": {
-            "command": "interface {interface_name}",
-            "expected_response": "Switch(config-if)#",
-            "subcommands": {
-                "switchport_mode_access": {
-                    "command": "switchport mode access",
-                    "expected_response": "Switch(config-if)#"
-                },
-                "switchport_mode_trunk": {
-                    "command": "switchport mode trunk",
-                    "expected_response": "Switch(config-if)#"
-                },
-                "switchport_access_vlan": {
-                    "command": "switchport access vlan {vlan_id}",
-                    "expected_response": "Switch(config-if)#"
-                },
-                "switchport_trunk_allowed_vlan": {
-                    "command": "switchport trunk allowed vlan {vlan_list}",
-                    "expected_response": "Switch(config-if)#"
-                }
-            }
+            "command": "interface {interface}",
+            "expected_response": "Switch(config-if)#"
+        },
+        "switchport_mode": {
+            "command": "switchport mode {mode}",
+            "expected_response": "Switch(config-if)#"
+        },
+        "switchport_mode_access": {
+            "command": "switchport mode access",
+            "expected_response": "Switch(config-if)#"
+        },
+        "switchport_mode_trunk": {
+            "command": "switchport mode trunk",
+            "expected_response": "Switch(config-if)#"
+        },
+        "switchport_access_vlan": {
+            "command": "switchport access vlan {vlan_id}",
+            "expected_response": "Switch(config-if)#"
+        },
+        "switchport_trunk_native_vlan": {
+            "command": "switchport trunk native vlan {vlan_id}",
+            "expected_response": "Switch(config-if)#"
+        },
+        "switchport_trunk_allowed_vlan": {
+            "command": "switchport trunk allowed vlan {vlan_list}",
+            "expected_response": "Switch(config-if)#"
         }
     },
     "mac_commands": {
@@ -136,6 +135,10 @@
         },
         "end": {
             "command": "end",
+            "expected_response": "Switch#"
+        },
+        "clear_config": {
+            "command": "write erase",
             "expected_response": "Switch#"
         }
     },

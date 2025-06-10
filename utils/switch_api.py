@@ -191,7 +191,7 @@ class SwitchAPI:
             
             # Enter interface configuration
             logger.info(f"Configuring interface {interface}")
-            interface_cmd = self._command_manager.format_command('vlan_commands', 'configure_interface', 
+            interface_cmd = self._command_manager.format_command('interface_commands', 'configure_interface', 
                                                               interface=interface)
             self._connection.send_command(interface_cmd)
             time.sleep(2)
@@ -365,26 +365,26 @@ class SwitchAPI:
             
             # Enter interface configuration
             logger.info(f"Configuring interface {port}")
-            interface_cmd = self._command_manager.format_command('vlan_commands', 'configure_interface', 
+            interface_cmd = self._command_manager.format_command('interface_commands', 'configure_interface', 
                                                               interface=port)
             self._connection.send_command(interface_cmd)
             time.sleep(2)
             
             # Configure trunk mode
             logger.info("Setting trunk mode")
-            mode_cmd = self._command_manager.format_command('vlan_commands', 'switchport_mode', mode='trunk')
+            mode_cmd = self._command_manager.format_command('interface_commands', 'switchport_mode', mode='trunk')
             self._connection.send_command(mode_cmd)
             time.sleep(2)
             
             # Configure native VLAN
             logger.info(f"Setting native VLAN {native_vlan}")
-            native_vlan_cmd = self._command_manager.format_command('vlan_commands', 'switchport_trunk_native_vlan', vlan_id=native_vlan)
+            native_vlan_cmd = self._command_manager.format_command('interface_commands', 'switchport_trunk_native_vlan', vlan_id=native_vlan)
             self._connection.send_command(native_vlan_cmd)
             time.sleep(2)
             
             # Configure allowed VLANs
             logger.info(f"Setting allowed VLANs: {allowed_vlans}")
-            allowed_vlans_cmd = self._command_manager.format_command('vlan_commands', 'switchport_trunk_allowed_vlan', vlan_list=allowed_vlans)
+            allowed_vlans_cmd = self._command_manager.format_command('interface_commands', 'switchport_trunk_allowed_vlan', vlan_list=allowed_vlans)
             self._connection.send_command(allowed_vlans_cmd)
             time.sleep(2)
             
@@ -456,18 +456,22 @@ class SwitchAPI:
             
             # Enter interface configuration
             logger.info(f"Configuring interface vlan {vlan_id}")
-            self._connection.send_command(f"interface vlan {vlan_id}")
-            time.sleep(2)
+            interface_cmd = self._command_manager.format_command('vlan_commands', 'configure_interface', 
+                                                              interface=f"vlan {vlan_id}")
+            self._connection.send_command(interface_cmd)
+            time.sleep(2)   
             
             # Configure IP address
             logger.info(f"Setting IP address {ip_address} {subnet_mask}")
-            self._connection.send_command(f"ip address {ip_address} {subnet_mask}")
+            ip_cmd = self._command_manager.format_command('vlan_commands', 'ip_address', ip_address=ip_address, subnet_mask=subnet_mask)
+            self._connection.send_command(ip_cmd)
             time.sleep(2)
             
             # Configure description if provided
             if description:
                 logger.info(f"Setting description: {description}")
-                self._connection.send_command(f"description {description}")
+                description_cmd = self._command_manager.format_command('vlan_commands', 'description', description=description)
+                self._connection.send_command(description_cmd)
                 time.sleep(2)
             
             # Exit interface configuration
@@ -481,7 +485,8 @@ class SwitchAPI:
             
             # Verify configuration
             logger.info("Verifying SVI configuration")
-            output = self._connection.send_command(f"show interfaces vlan {vlan_id}")
+            show_cmd = self._command_manager.format_command('vlan_commands', 'show_interface_switchport', interface=f"vlan {vlan_id}")
+            output = self._connection.send_command(show_cmd)
             logger.debug(f"SVI configuration output:\n{output}")
             
             if ip_address not in output:
