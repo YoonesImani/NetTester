@@ -75,6 +75,8 @@ class SerialConnection(SwitchConnectionBase):
         self.serial = None
         self.in_enable_mode = False
         self.in_config_mode = False
+        self.in_interface_mode = False
+        self.in_vlan_mode = False
         
         # Update prompt patterns to be more flexible
         self.USER_PROMPT = r'[a-zA-Z0-9\-_]+>\s*$'
@@ -271,6 +273,8 @@ class SerialConnection(SwitchConnectionBase):
             self.serial = None
             self.in_enable_mode = False
             self.in_config_mode = False
+            self.in_interface_mode = False
+            self.in_vlan_mode = False
     
     def send_command(self, command: str, wait_time: float = 1) -> str:
         """
@@ -316,6 +320,8 @@ class SerialConnection(SwitchConnectionBase):
                 # Only set config mode if we got the expected prompt
                 if pattern == self.CONFIG_PROMPT:
                     self.in_config_mode = True
+                    self.in_interface_mode = False
+                    self.in_vlan_mode = False
                     logger.debug("Entering config mode")
                 else:
                     raise CommandError("Failed to enter config mode")
@@ -328,15 +334,39 @@ class SerialConnection(SwitchConnectionBase):
                     lines = lines[:-1]
                 return '\n'.join(lines).strip()
                 
-            elif command.strip() in ["end", "exit"] and self.in_config_mode:
+            elif command.strip().startswith("interface "):
+                self.serial.write(f"{command}\r\n".encode())
+                output, pattern = self._read_until([self.INTERFACE_PROMPT])
+                if pattern == self.INTERFACE_PROMPT:
+                    self.in_interface_mode = True
+                else:
+                    raise CommandError("Failed to enter interface config mode")
+                # ... process output ...
+                return output.strip()
+            elif command.strip().startswith("vlan "):
+                self.serial.write(f"{command}\r\n".encode())
+                output, pattern = self._read_until([self.VLAN_PROMPT])
+                if pattern == self.VLAN_PROMPT:
+                    self.in_vlan_mode = True
+                else:
+                    raise CommandError("Failed to enter vlan config mode")
+                # ... process output ...
+                return output.strip()
+            elif command.strip() in ["end", "exit"]:
                 self.in_config_mode = False
+                self.in_interface_mode = False
+                self.in_vlan_mode = False
                 logger.debug("Exiting config mode")
             
             # Send command
             self.serial.write(f"{command}\r\n".encode())
             
             # Determine expected prompt
-            if self.in_config_mode:
+            if self.in_interface_mode:
+                expected_prompt = self.INTERFACE_PROMPT
+            elif self.in_vlan_mode:
+                expected_prompt = self.VLAN_PROMPT
+            elif self.in_config_mode:
                 expected_prompt = self.CONFIG_PROMPT
             elif self.in_enable_mode:
                 expected_prompt = self.ENABLE_PROMPT

@@ -20,7 +20,8 @@
         },
         "name_vlan": {
             "command": "name {vlan_name}",
-            "expected_response": "Switch(config-vlan)#"
+            "expected_response": "Switch(config-vlan)#|Switch(config)#",
+            "parse_pattern": "name\\s+{vlan_name}"
         },
         "configure_interface": {
             "command": "interface {interface}",
@@ -124,6 +125,10 @@
         },
         "enable": {
             "command": "enable",
+            "expected_response": "Switch#"
+        },
+        "end": {
+            "command": "end",
             "expected_response": "Switch#"
         }
     },

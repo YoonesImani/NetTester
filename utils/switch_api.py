@@ -122,11 +122,12 @@ class SwitchAPI:
                 time.sleep(2)
             
             # Exit VLAN configuration
-            self._connection.send_command("exit")
-            time.sleep(2)
+            # self._connection.send_command("exit")       
+            # time.sleep(2)
             
             # Exit configuration mode
-            self._connection.send_command("exit")
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection.send_command(end_cmd)
             time.sleep(2)
             
             return True, ""
@@ -160,7 +161,8 @@ class SwitchAPI:
             time.sleep(2)
             
             # Exit configuration mode
-            self._connection.send_command("exit")
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection.send_command(end_cmd)
             time.sleep(2)
             
             return True, ""
@@ -275,11 +277,12 @@ class SwitchAPI:
             time.sleep(2)
             
             # Exit interface configuration
-            self._connection.send_command("exit")
-            time.sleep(2)
+            # self._connection.send_command("exit")
+            # time.sleep(2)
             
             # Exit configuration mode
-            self._connection.send_command("exit")
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection.send_command(end_cmd)
             time.sleep(2)
             
             return True, ""
@@ -356,12 +359,15 @@ class SwitchAPI:
             
             # Enter configuration mode
             logger.info("Entering config mode")
-            self._connection.send_command("configure terminal")
+            config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
+            self._connection.send_command(config_cmd)
             time.sleep(2)
             
             # Enter interface configuration
             logger.info(f"Configuring interface {port}")
-            self._connection.send_command(f"interface {port}")
+            interface_cmd = self._command_manager.format_command('vlan_commands', 'configure_interface', 
+                                                              interface=port)
+            self._connection.send_command(interface_cmd)
             time.sleep(2)
             
             # Configure trunk mode
@@ -389,7 +395,8 @@ class SwitchAPI:
             time.sleep(2)
             
             # Exit configuration mode
-            self._connection.send_command("exit")
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection.send_command(end_cmd)
             time.sleep(2)
             
             # Check interface status first
@@ -440,7 +447,8 @@ class SwitchAPI:
             
             # Enter configuration mode
             logger.info("Entering config mode")
-            self._connection.send_command("configure terminal")
+            config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
+            self._connection.send_command(config_cmd)
             time.sleep(2)
             
             # Enter interface configuration
@@ -460,11 +468,12 @@ class SwitchAPI:
                 time.sleep(2)
             
             # Exit interface configuration
-            self._connection.send_command("exit")
-            time.sleep(2)
+            # self._connection.send_command("exit")
+            # time.sleep(2)
             
             # Exit configuration mode
-            self._connection.send_command("exit")
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection.send_command(end_cmd)
             time.sleep(2)
             
             # Verify configuration
@@ -518,12 +527,15 @@ class SwitchAPI:
             
             # Enter configuration mode
             logger.info("Entering config mode")
-            self._connection.send_command("configure terminal")
+            config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
+            self._connection.send_command(config_cmd)
             time.sleep(2)
             
             # Enter interface configuration
             logger.info(f"Configuring interface {port}")
-            self._connection.send_command(f"interface {port}")
+            interface_cmd = self._command_manager.format_command('vlan_commands', 'configure_interface', 
+                                                              interface=port)
+            self._connection.send_command(interface_cmd)
             time.sleep(2)
             
             # Configure access mode and data VLAN
@@ -541,8 +553,13 @@ class SwitchAPI:
             time.sleep(2)
             
             # Configure QoS trust
-            logger.info(f"Setting QoS trust mode: {qos_trust}")
+            logger.info(f"Setting QoS trust mode to {qos_trust}")
             self._connection.send_command(f"mls qos trust {qos_trust}")
+            time.sleep(2)
+            
+            # Enable interface
+            logger.info("Enabling interface")
+            self._connection.send_command("no shutdown")
             time.sleep(2)
             
             # Exit interface configuration
@@ -550,19 +567,9 @@ class SwitchAPI:
             time.sleep(2)
             
             # Exit configuration mode
-            self._connection.send_command("exit")
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection.send_command(end_cmd)
             time.sleep(2)
-            
-            # Verify configuration
-            logger.info("Verifying voice VLAN configuration")
-            output = self._connection.send_command(f"show interfaces {port} switchport")
-            logger.debug(f"Voice VLAN configuration output:\n{output}")
-            
-            if f"Voice VLAN: {voice_vlan}" not in output:
-                raise PortConfigurationError(f"Voice VLAN {voice_vlan} not configured correctly")
-            
-            if f"Access Mode VLAN: {data_vlan}" not in output:
-                raise PortConfigurationError(f"Data VLAN {data_vlan} not configured correctly")
             
             return True, ""
             

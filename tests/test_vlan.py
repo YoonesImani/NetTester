@@ -34,10 +34,25 @@ def verify_vlan_creation(switch_api: SwitchAPI, command_manager: CommandManager,
         True if VLAN exists with correct name, False otherwise
     """
     show_cmd = command_manager.format_command('vlan_commands', 'show_vlan')
-    response = switch_api.send_command(show_cmd)
-    matches = command_manager.parse_response('vlan_commands', 'show_vlan', response)
+    vlan_info = switch_api.send_command(show_cmd)
     
-    return any(f"{vlan_id}" in match and vlan_name in match for match in matches)
+    # Split output into lines and skip header lines
+    lines = vlan_info.splitlines()
+    vlan_lines = [line for line in lines if line.strip() and not line.startswith('VLAN') and not line.startswith('----')]
+    
+    # Parse each VLAN line
+    for line in vlan_lines:
+        # Split line into fields, handling multiple spaces
+        fields = line.split()
+        if len(fields) >= 2:
+            current_vlan_id = fields[0]
+            current_vlan_name = fields[1]
+            
+            # Check if this is our target VLAN
+            if current_vlan_id == str(vlan_id):
+                return current_vlan_name == vlan_name
+    
+    return False
 
 def verify_vlan_deletion(switch_api: SwitchAPI, command_manager: CommandManager,
                         vlan_id: int) -> bool:
@@ -52,10 +67,24 @@ def verify_vlan_deletion(switch_api: SwitchAPI, command_manager: CommandManager,
         True if VLAN does not exist, False otherwise
     """
     show_cmd = command_manager.format_command('vlan_commands', 'show_vlan')
-    response = switch_api.send_command(show_cmd)
-    matches = command_manager.parse_response('vlan_commands', 'show_vlan', response)
+    vlan_info = switch_api.send_command(show_cmd)
     
-    return not any(f"{vlan_id}" in match for match in matches)
+    # Split output into lines and skip header lines
+    lines = vlan_info.splitlines()
+    vlan_lines = [line for line in lines if line.strip() and not line.startswith('VLAN') and not line.startswith('----')]
+    
+    # Parse each VLAN line
+    for line in vlan_lines:
+        # Split line into fields, handling multiple spaces
+        fields = line.split()
+        if len(fields) >= 2:
+            current_vlan_id = fields[0]
+            
+            # Check if this is our target VLAN
+            if current_vlan_id == str(vlan_id):
+                return False
+    
+    return True
 
 def verify_port_vlan_assignment(switch_api: SwitchAPI, command_manager: CommandManager,
                               interface: str, vlan_id: int) -> bool:
@@ -71,10 +100,28 @@ def verify_port_vlan_assignment(switch_api: SwitchAPI, command_manager: CommandM
         True if port is assigned to correct VLAN, False otherwise
     """
     show_cmd = command_manager.format_command('vlan_commands', 'show_vlan')
-    response = switch_api.send_command(show_cmd)
-    matches = command_manager.parse_response('vlan_commands', 'show_vlan', response)
+    vlan_info = switch_api.send_command(show_cmd)
     
-    return any(f"{vlan_id}" in match and interface in match for match in matches)
+    # Split output into lines and skip header lines
+    lines = vlan_info.splitlines()
+    vlan_lines = [line for line in lines if line.strip() and not line.startswith('VLAN') and not line.startswith('----')]
+    
+    # Parse each VLAN line
+    for line in vlan_lines:
+        # Split line into fields, handling multiple spaces
+        fields = line.split()
+        if len(fields) >= 2:
+            current_vlan_id = fields[0]
+            
+            # Check if this is our target VLAN
+            if current_vlan_id == str(vlan_id):
+                # Get the ports field (it's the last field in the line)
+                ports = fields[-1]
+                # Split ports by comma and check if our interface is in the list
+                port_list = [p.strip() for p in ports.split(',')]
+                return interface in port_list
+    
+    return False
 
 def test_vlan_creation(switch_api: SwitchAPI, command_manager: CommandManager, logger: logging.Logger) -> None:
     """Test VLAN creation functionality"""
@@ -91,7 +138,7 @@ def test_vlan_creation(switch_api: SwitchAPI, command_manager: CommandManager, l
         
         # Verify VLAN creation
         logger.debug("Verifying VLAN creation")
-        show_cmd = command_manager.format_command('vlan_commands', 'show_vlan')
+        show_cmd = command_manager.format_command('vlan_commands', 'show_vlan_brief')
         vlan_info = switch_api.send_command(show_cmd)
         assert str(vlan_id) in vlan_info, f"VLAN {vlan_id} not found in show vlan output"
         assert vlan_name in vlan_info, f"VLAN name {vlan_name} not found in show vlan output"
