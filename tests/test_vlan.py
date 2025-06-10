@@ -224,7 +224,7 @@ def test_vlan_port_assignment(switch_api: SwitchAPI, command_manager: CommandMan
         logger.error(f"[FAIL] VLAN port assignment test failed: {str(e)}")
         raise
 
-def test_vlan_trunk_configuration(switch_api: SwitchAPI, command_manager: CommandManager) -> None:
+def test_vlan_trunk_configuration(switch_api: SwitchAPI, command_manager: CommandManager , logger: logging.Logger) -> None:
     """Test VLAN trunk configuration."""
     logger.info("Starting VLAN trunk configuration test")
     try:
@@ -420,7 +420,15 @@ def run(switch_api: SwitchAPI, command_manager: CommandManager, logger: logging.
             test_results.append(("VLAN Port Assignment", True))
         except Exception as e:
             test_results.append(("VLAN Port Assignment", False, str(e)))
+
+        # Test VLAN trunk configuration
+        try:
+            test_vlan_trunk_configuration(switch_api, command_manager, logger)
+            test_results.append(("VLAN Trunk Configuration", True))
+        except Exception as e:
+            test_results.append(("VLAN Trunk Configuration", False, str(e)))
         
+
         # Log test results
         logger.info("\nVLAN Test Suite Results:")
         logger.info("-" * 50)

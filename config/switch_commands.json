@@ -32,6 +32,14 @@
             "command": "switchport access vlan {vlan_id}",
             "expected_response": "Switch(config-if)#"
         },
+        "switchport_trunk_native_vlan": {
+            "command": "switchport trunk native vlan {vlan_id}",
+            "expected_response": "Switch(config-if)#"
+        },
+        "switchport_trunk_allowed_vlan": {
+            "command": "switchport trunk allowed vlan {vlan_list}",
+            "expected_response": "Switch(config-if)#"
+        },
         "exit_interface": {
             "command": "exit",
             "expected_response": "Switch(config)#"

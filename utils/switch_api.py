@@ -372,17 +372,20 @@ class SwitchAPI:
             
             # Configure trunk mode
             logger.info("Setting trunk mode")
-            self._connection.send_command("switchport mode trunk")
+            mode_cmd = self._command_manager.format_command('vlan_commands', 'switchport_mode', mode='trunk')
+            self._connection.send_command(mode_cmd)
             time.sleep(2)
             
             # Configure native VLAN
             logger.info(f"Setting native VLAN {native_vlan}")
-            self._connection.send_command(f"switchport trunk native vlan {native_vlan}")
+            native_vlan_cmd = self._command_manager.format_command('vlan_commands', 'switchport_trunk_native_vlan', vlan_id=native_vlan)
+            self._connection.send_command(native_vlan_cmd)
             time.sleep(2)
             
             # Configure allowed VLANs
             logger.info(f"Setting allowed VLANs: {allowed_vlans}")
-            self._connection.send_command(f"switchport trunk allowed vlan {allowed_vlans}")
+            allowed_vlans_cmd = self._command_manager.format_command('vlan_commands', 'switchport_trunk_allowed_vlan', vlan_list=allowed_vlans)
+            self._connection.send_command(allowed_vlans_cmd)
             time.sleep(2)
             
             # Enable interface
@@ -391,8 +394,8 @@ class SwitchAPI:
             time.sleep(2)
             
             # Exit interface configuration
-            self._connection.send_command("exit")
-            time.sleep(2)
+            # self._connection.send_command("exit")
+            # time.sleep(2)
             
             # Exit configuration mode
             end_cmd = self._command_manager.format_command('system_commands', 'end')
