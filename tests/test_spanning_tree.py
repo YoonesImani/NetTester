@@ -183,13 +183,9 @@ def test_port_cost(switch_api: SwitchAPI, command_manager: CommandManager, logge
                                                      subcommand='switchport_mode_access')
         switch_api.send_command(interface_cmd)
         
-        # Exit interface configuration
-        switch_api.send_command("exit")
-        time.sleep(1)
-        
         # Exit configuration mode
-        switch_api.send_command("end")
-        time.sleep(1)
+        exit_cmd = command_manager.format_command('system_commands', 'exit')
+        switch_api.send_command(exit_cmd)
         
         # Set port cost
         cost_cmd = command_manager.format_command('interface_commands', 'configure_interface',

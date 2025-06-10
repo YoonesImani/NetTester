@@ -6,7 +6,7 @@ import serial
 import time
 import re
 import logging
-from typing import Optional, Tuple, Any
+from typing import Optional, Tuple, Any, List
 from .connection import SwitchConnectionBase
 from .ssh_tools import ConnectionError, CommandError
 from config.config_manager import ConfigManager
@@ -92,56 +92,39 @@ class SerialConnection(SwitchConnectionBase):
             self.ENABLE_PROMPT
         ]
     
-    def _read_until(self, expected_patterns: list, timeout: int = None) -> Tuple[str, str]:
-        """
-        Read from serial port until one of the expected patterns is found.
+    def _read_until(self, patterns: List[str], timeout: int = 10) -> Tuple[str, str]:
+        """Read from serial port until one of the patterns is found.
         
         Args:
-            expected_patterns: List of regex patterns to match
-            timeout: Read timeout in seconds (overrides default timeout)
+            patterns: List of patterns to match
+            timeout: Timeout in seconds
             
         Returns:
-            Tuple[str, str]: (complete output, matched pattern)
-            
-        Raises:
-            SerialConnectionError: If timeout occurs before pattern match
+            Tuple of (output, matched_pattern)
         """
-        if timeout is None:
-            timeout = self.timeout
-            
-        start_time = time.time()
         output = ""
+        start_time = time.time()
         
         while time.time() - start_time < timeout:
             if self.serial.in_waiting:
-                try:
-                    char = self.serial.read().decode('utf-8', errors='ignore')
-                    output += char
-                    
-                    # Check for pattern matches
-                    for pattern in expected_patterns:
-                        if re.search(pattern, output, re.MULTILINE):
-                            # Log the matched pattern for debugging
-                            logger.debug(f"Matched pattern: {pattern}")
-                            logger.debug(f"Output: {output}")
-                            return output, pattern
-                except UnicodeDecodeError:
-                    continue
+                data = self.serial.read(self.serial.in_waiting).decode()
+                output += data
+                
+                # Special handling for show commands
+                if any(cmd in output for cmd in ['show vlan', 'show vlan brief', 'show interfaces', 'show running-config']):
+                    # For show commands, we don't expect a prompt, just wait for output to complete
+                    time.sleep(0.5)  # Give time for all output to arrive
+                    if not self.serial.in_waiting:  # If no more data is coming
+                        return output, ""  # Return output without expecting a prompt
+                
+                # Check for patterns
+                for pattern in patterns:
+                    if re.search(pattern, output):
+                        return output, pattern
+                
             time.sleep(0.1)
-            
-        # If we timeout, try to read any remaining data
-        try:
-            if self.serial.in_waiting:
-                remaining = self.serial.read_all().decode('utf-8', errors='ignore')
-                output += remaining
-        except:
-            pass
-            
-        # Log the full output for debugging
-        logger.debug(f"Timeout waiting for patterns: {expected_patterns}")
-        logger.debug(f"Got output: {output}")
-            
-        raise SerialConnectionError(f"Timeout waiting for patterns: {expected_patterns}. Got: {output}")
+        
+        raise TimeoutError(f"Timeout waiting for patterns: {patterns}")
     
     def _handle_initial_connection(self) -> None:
         """

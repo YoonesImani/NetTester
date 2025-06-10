@@ -187,7 +187,7 @@ def test_vlan_port_assignment(switch_api: SwitchAPI, command_manager: CommandMan
         # Create a VLAN
         vlan_id = 300
         vlan_name = "port_vlan"
-        interface = "GigabitEthernet1/0/1"
+        interface = "FastEthernet0/1"
         
         logger.debug(f"Creating VLAN {vlan_id} for port assignment")
         success, error = switch_api.create_vlan(str(vlan_id), vlan_name)
@@ -201,27 +201,17 @@ def test_vlan_port_assignment(switch_api: SwitchAPI, command_manager: CommandMan
         
         # Set port mode and assign VLAN
         logger.debug(f"Setting port mode and assigning VLAN {vlan_id} to {interface}")
-        mode_cmd = command_manager.format_command('vlan_commands', 'configure_interface', 
-                                                interface=interface,
-                                                subcommand='switchport_mode',
-                                                mode='access')
+        mode_cmd = command_manager.format_command('vlan_commands', 'switchport_mode', mode='access')
         response = switch_api.send_command(mode_cmd)
         assert "Invalid input" not in response, f"Failed to set port mode: {response}"
         
-        vlan_cmd = command_manager.format_command('vlan_commands', 'configure_interface',
-                                                interface=interface,
-                                                subcommand='switchport_access_vlan',
-                                                vlan_id=vlan_id)
+        vlan_cmd = command_manager.format_command('vlan_commands', 'switchport_access_vlan', vlan_id=vlan_id)
         response = switch_api.send_command(vlan_cmd)
         assert "Invalid input" not in response, f"Failed to assign VLAN {vlan_id} to port: {response}"
         
-        # Exit interface configuration
-        switch_api.send_command("exit")
-        time.sleep(1)
-        
         # Exit configuration mode
-        switch_api.send_command("end")
-        time.sleep(1)
+        end_cmd = command_manager.format_command('system_commands', 'end')
+        switch_api.send_command(end_cmd)
         
         # Verify port assignment
         logger.debug("Verifying port assignment")

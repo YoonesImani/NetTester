@@ -10,36 +10,35 @@
         },
         "show_vlan": {
             "command": "show vlan",
-            "expected_response": "Switch#",
-            "parse_pattern": "VLAN\\s+{vlan_id}\\s+{vlan_name}"
+            "expected_response": "Switch#"
         },
         "show_vlan_brief": {
             "command": "show vlan brief",
-            "expected_response": "Switch#",
-            "parse_pattern": "VLAN\\s+{vlan_id}\\s+{vlan_name}"
+            "expected_response": "Switch#"
         },
         "name_vlan": {
             "command": "name {vlan_name}",
-            "expected_response": "Switch(config-vlan)#|Switch(config)#",
-            "parse_pattern": "name\\s+{vlan_name}"
+            "expected_response": "Switch(config-vlan)#"
         },
         "configure_interface": {
             "command": "interface {interface}",
-            "expected_response": "Switch(config-if)#",
-            "subcommands": {
-                "switchport_mode": {
-                    "command": "switchport mode {mode}",
-                    "expected_response": "Switch(config-if)#"
-                },
-                "switchport_access_vlan": {
-                    "command": "switchport access vlan {vlan_id}",
-                    "expected_response": "Switch(config-if)#"
-                },
-                "switchport_trunk_allowed_vlan": {
-                    "command": "switchport trunk allowed vlan {vlan_list}",
-                    "expected_response": "Switch(config-if)#"
-                }
-            }
+            "expected_response": "Switch(config-if)#"
+        },
+        "switchport_mode": {
+            "command": "switchport mode {mode}",
+            "expected_response": "Switch(config-if)#"
+        },
+        "switchport_access_vlan": {
+            "command": "switchport access vlan {vlan_id}",
+            "expected_response": "Switch(config-if)#"
+        },
+        "exit_interface": {
+            "command": "exit",
+            "expected_response": "Switch(config)#"
+        },
+        "exit_config": {
+            "command": "end",
+            "expected_response": "Switch#"
         },
         "show_interface_switchport": {
             "command": "show interfaces {interface} switchport",
