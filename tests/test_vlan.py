@@ -20,6 +20,43 @@ from utils.test_helpers import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def _parse_vlan_output(vlan_info: str) -> List[Dict[str, str]]:
+    """Parse VLAN output into a list of dictionaries.
+    
+    Args:
+        vlan_info: Output from show vlan brief command
+        
+    Returns:
+        List of dictionaries containing VLAN information:
+        [
+            {
+                'vlan_id': '1',
+                'name': 'default',
+                'status': 'active',
+                'ports': 'Fa0/1, Fa0/2, ...'
+            },
+            ...
+        ]
+    """
+    # Split output into lines and skip header lines
+    lines = vlan_info.splitlines()
+    vlan_lines = [line for line in lines if line.strip() and not line.startswith('VLAN') and not line.startswith('----')]
+    
+    vlan_list = []
+    for line in vlan_lines:
+        # Split line into fields, handling multiple spaces
+        fields = line.split()
+        if len(fields) >= 2:
+            vlan_info = {
+                'vlan_id': fields[0],
+                'name': fields[1],
+                'status': fields[2] if len(fields) > 2 else '',
+                'ports': fields[3] if len(fields) > 3 else ''
+            }
+            vlan_list.append(vlan_info)
+    
+    return vlan_list
+
 def verify_vlan_creation(switch_api: SwitchAPI, command_manager: CommandManager,
                         vlan_id: int, vlan_name: str) -> bool:
     """Verify VLAN creation.
@@ -33,24 +70,13 @@ def verify_vlan_creation(switch_api: SwitchAPI, command_manager: CommandManager,
     Returns:
         True if VLAN exists with correct name, False otherwise
     """
-    show_cmd = command_manager.format_command('vlan_commands', 'show_vlan')
+    show_cmd = command_manager.format_command('vlan_commands', 'show_vlan_brief')
     vlan_info = switch_api.send_command(show_cmd)
     
-    # Split output into lines and skip header lines
-    lines = vlan_info.splitlines()
-    vlan_lines = [line for line in lines if line.strip() and not line.startswith('VLAN') and not line.startswith('----')]
-    
-    # Parse each VLAN line
-    for line in vlan_lines:
-        # Split line into fields, handling multiple spaces
-        fields = line.split()
-        if len(fields) >= 2:
-            current_vlan_id = fields[0]
-            current_vlan_name = fields[1]
-            
-            # Check if this is our target VLAN
-            if current_vlan_id == str(vlan_id):
-                return current_vlan_name == vlan_name
+    vlan_list = _parse_vlan_output(vlan_info)
+    for vlan in vlan_list:
+        if vlan['vlan_id'] == str(vlan_id):
+            return vlan['name'] == vlan_name
     
     return False
 
@@ -66,23 +92,13 @@ def verify_vlan_deletion(switch_api: SwitchAPI, command_manager: CommandManager,
     Returns:
         True if VLAN does not exist, False otherwise
     """
-    show_cmd = command_manager.format_command('vlan_commands', 'show_vlan')
+    show_cmd = command_manager.format_command('vlan_commands', 'show_vlan_brief')
     vlan_info = switch_api.send_command(show_cmd)
     
-    # Split output into lines and skip header lines
-    lines = vlan_info.splitlines()
-    vlan_lines = [line for line in lines if line.strip() and not line.startswith('VLAN') and not line.startswith('----')]
-    
-    # Parse each VLAN line
-    for line in vlan_lines:
-        # Split line into fields, handling multiple spaces
-        fields = line.split()
-        if len(fields) >= 2:
-            current_vlan_id = fields[0]
-            
-            # Check if this is our target VLAN
-            if current_vlan_id == str(vlan_id):
-                return False
+    vlan_list = _parse_vlan_output(vlan_info)
+    for vlan in vlan_list:
+        if vlan['vlan_id'] == str(vlan_id):
+            return False
     
     return True
 
@@ -99,27 +115,15 @@ def verify_port_vlan_assignment(switch_api: SwitchAPI, command_manager: CommandM
     Returns:
         True if port is assigned to correct VLAN, False otherwise
     """
-    show_cmd = command_manager.format_command('vlan_commands', 'show_vlan')
+    show_cmd = command_manager.format_command('vlan_commands', 'show_vlan_brief')
     vlan_info = switch_api.send_command(show_cmd)
     
-    # Split output into lines and skip header lines
-    lines = vlan_info.splitlines()
-    vlan_lines = [line for line in lines if line.strip() and not line.startswith('VLAN') and not line.startswith('----')]
-    
-    # Parse each VLAN line
-    for line in vlan_lines:
-        # Split line into fields, handling multiple spaces
-        fields = line.split()
-        if len(fields) >= 2:
-            current_vlan_id = fields[0]
-            
-            # Check if this is our target VLAN
-            if current_vlan_id == str(vlan_id):
-                # Get the ports field (it's the last field in the line)
-                ports = fields[-1]
-                # Split ports by comma and check if our interface is in the list
-                port_list = [p.strip() for p in ports.split(',')]
-                return interface in port_list
+    vlan_list = _parse_vlan_output(vlan_info)
+    for vlan in vlan_list:
+        if vlan['vlan_id'] == str(vlan_id):
+            # Split ports by comma and check if our interface is in the list
+            port_list = [p.strip() for p in vlan['ports'].split(',')]
+            return interface in port_list
     
     return False
 
@@ -167,7 +171,7 @@ def test_vlan_deletion(switch_api: SwitchAPI, command_manager: CommandManager, l
         
         # Verify deletion
         logger.debug("Verifying VLAN deletion")
-        show_cmd = command_manager.format_command('vlan_commands', 'show_vlan')
+        show_cmd = command_manager.format_command('vlan_commands', 'show_vlan_brief')
         vlan_info = switch_api.send_command(show_cmd)
         assert str(vlan_id) not in vlan_info, f"VLAN {vlan_id} still exists after deletion"
         logger.info("[PASS] VLAN deletion test completed successfully")

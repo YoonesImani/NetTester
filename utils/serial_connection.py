@@ -372,7 +372,7 @@ class SerialConnection(SwitchConnectionBase):
                 expected_prompt = self.ENABLE_PROMPT
             else:
                 expected_prompt = self.USER_PROMPT
-            
+                
             # Wait for command output
             output, _ = self._read_until([expected_prompt])
             

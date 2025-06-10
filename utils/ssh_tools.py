@@ -100,7 +100,7 @@ class SSHConnection(SwitchConnectionBase):
             raise SSHConnectionError("Not connected to switch")
         
         try:
-            self.shell.send(command + '\n')
+            self.shell.send(command + '\r\n')
             time.sleep(wait_time)
             output = self.shell.recv(10000).decode('utf-8')
             return output
