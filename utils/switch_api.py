@@ -117,8 +117,7 @@ class SwitchAPI:
             # Set VLAN name if provided
             if name:
                 logger.info(f"Setting VLAN name to {name}")
-                name_cmd = self._command_manager.format_command('vlan_commands', 'create_vlan', 
-                                                             vlan_id=vlan_id, vlan_name=name)
+                name_cmd = self._command_manager.format_command('vlan_commands', 'name_vlan', vlan_name=name)
                 self._connection.send_command(name_cmd)
                 time.sleep(2)
             

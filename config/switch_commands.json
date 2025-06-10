@@ -18,6 +18,10 @@
             "expected_response": "Switch#",
             "parse_pattern": "VLAN\\s+{vlan_id}\\s+{vlan_name}"
         },
+        "name_vlan": {
+            "command": "name {vlan_name}",
+            "expected_response": "Switch(config-vlan)#"
+        },
         "configure_interface": {
             "command": "interface {interface}",
             "expected_response": "Switch(config-if)#",
