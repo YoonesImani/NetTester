@@ -251,7 +251,7 @@ def test_vlan_trunk_configuration(switch_api: SwitchAPI, command_manager: Comman
         logger.error(f"[FAIL] VLAN trunk configuration test failed: {str(e)}")
         raise
 
-def test_vlan_interface(switch_api: SwitchAPI, command_manager: CommandManager) -> None:
+def test_vlan_interface(switch_api: SwitchAPI, command_manager: CommandManager , logger: logging.Logger) -> None:
     """Test VLAN interface configuration."""
     logger.info("Starting VLAN interface test")
     try:
@@ -284,7 +284,7 @@ def test_vlan_interface(switch_api: SwitchAPI, command_manager: CommandManager) 
         logger.error(f"[FAIL] VLAN interface test failed: {str(e)}")
         raise
 
-def test_voice_vlan(switch_api: SwitchAPI, command_manager: CommandManager) -> None:
+def test_voice_vlan(switch_api: SwitchAPI, command_manager: CommandManager , logger: logging.Logger) -> None:
     """Test voice VLAN configuration."""
     logger.info("Starting voice VLAN test")
     try:
@@ -320,7 +320,7 @@ def test_voice_vlan(switch_api: SwitchAPI, command_manager: CommandManager) -> N
         logger.error(f"[FAIL] Voice VLAN test failed: {str(e)}")
         raise
 
-def test_private_vlan(switch_api: SwitchAPI, command_manager: CommandManager) -> None:
+def test_private_vlan(switch_api: SwitchAPI, command_manager: CommandManager , logger: logging.Logger) -> None:
     """Test private VLAN configuration."""
     logger.info("Starting private VLAN test")
     try:
@@ -347,7 +347,7 @@ def test_private_vlan(switch_api: SwitchAPI, command_manager: CommandManager) ->
         logger.error(f"[FAIL] Private VLAN test failed: {str(e)}")
         raise
 
-def test_vlan_acl(switch_api: SwitchAPI, command_manager: CommandManager) -> None:
+def test_vlan_acl(switch_api: SwitchAPI, command_manager: CommandManager ,logger: logging.Logger) -> None:
     """Test VLAN ACL configuration."""
     logger.info("Starting VLAN ACL test")
     try:

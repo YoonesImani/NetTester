@@ -90,6 +90,7 @@
 - [x] cisco_config.txt - Basic switch configuration
 - [x] test_config.yaml - Test parameters and thresholds
 - [x] logging_config.yaml - Logging configuration
+- [x] switch_commands.json - Command definitions
 
 ## Documentation
 - [x] README.md - Project overview and setup
@@ -129,6 +130,9 @@
 - [ ] Add more test cases to existing suites
 - [ ] Improve test coverage
 - [ ] Add test result reporting
+- [ ] Implement automated test scheduling
+- [ ] Add support for more switch vendors
+- [ ] Enhance error reporting and analysis
 
 ## Future Tests to Add
 
@@ -167,6 +171,23 @@
 - [ ] Firmware upgrade
 - [ ] Configuration backup/restore
 - [ ] System logging
+
+### Port Testing
+- [ ] Port status verification
+- [ ] Port speed and duplex configuration
+- [ ] Port error statistics monitoring
+- [ ] Port security features
+- [ ] Port channel/LAG configuration
+- [ ] Port mirroring/SPAN setup
+- [ ] Port shutdown/enable operations
+- [ ] Port description and naming
+- [ ] Port VLAN membership
+- [ ] Port QoS settings
+- [ ] Port storm control
+- [ ] Port auto-negotiation
+- [ ] Port flow control
+- [ ] Port error recovery
+- [ ] Port statistics collection
 
 ## Test Structure Template
 For each new test suite:

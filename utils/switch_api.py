@@ -456,8 +456,7 @@ class SwitchAPI:
             
             # Enter interface configuration
             logger.info(f"Configuring interface vlan {vlan_id}")
-            interface_cmd = self._command_manager.format_command('vlan_commands', 'configure_interface', 
-                                                              interface=f"vlan {vlan_id}")
+            interface_cmd = self._command_manager.format_command('vlan_commands', 'configure_interface', vlan_id=vlan_id)
             self._connection.send_command(interface_cmd)
             time.sleep(2)   
             
@@ -485,7 +484,7 @@ class SwitchAPI:
             
             # Verify configuration
             logger.info("Verifying SVI configuration")
-            show_cmd = self._command_manager.format_command('vlan_commands', 'show_interface_switchport', interface=f"vlan {vlan_id}")
+            show_cmd = self._command_manager.format_command('vlan_commands', 'show_interface_vlan', vlan_id=vlan_id)
             output = self._connection.send_command(show_cmd)
             logger.debug(f"SVI configuration output:\n{output}")
             
@@ -902,12 +901,9 @@ class SwitchAPI:
             self._connection.send_command("no shutdown")
             time.sleep(2)
             
-            # Exit interface configuration
-            self._connection.send_command("exit")
-            time.sleep(2)
-            
             # Exit configuration mode
-            self._connection.send_command("exit")
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection.send_command(end_cmd)
             time.sleep(2)
             
             # Verify enable
