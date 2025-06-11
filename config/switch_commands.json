@@ -8,14 +8,6 @@
             "command": "no vlan {vlan_id}",
             "expected_response": "Switch(config)#"
         },
-        "show_vlan": {
-            "command": "show vlan",
-            "expected_response": "Switch#"
-        },
-        "show_vlan_brief": {
-            "command": "show vlan brief",
-            "expected_response": "Switch#"
-        },
         "name_vlan": {
             "command": "name {vlan_name}",
             "expected_response": "Switch(config-vlan)#"
@@ -32,22 +24,12 @@
             "command": "description {description}",
             "expected_response": "Switch(config-if)#"
         },
-        
         "exit_interface": {
             "command": "exit",
             "expected_response": "Switch(config)#"
         },
         "exit_config": {
             "command": "end",
-            "expected_response": "Switch#"
-        },
-        "show_interface_switchport": {
-            "command": "show interfaces {interface} switchport",
-            "expected_response": "Switch#",
-            "parse_pattern": "Access Mode VLAN:\\s+{vlan_id}"
-        },
-        "show_interface_vlan": {
-            "command": "show interfaces vlan {vlan_id}",
             "expected_response": "Switch#"
         }
     },
@@ -79,25 +61,106 @@
         "switchport_trunk_allowed_vlan": {
             "command": "switchport trunk allowed vlan {vlan_list}",
             "expected_response": "Switch(config-if)#"
+        },
+        "set_speed": {
+            "command": "speed {speed}",
+            "expected_response": "Switch(config-if)#"
+        },
+        "set_duplex": {
+            "command": "duplex {duplex}",
+            "expected_response": "Switch(config-if)#"
+        },
+        "set_description": {
+            "command": "description {description}",
+            "expected_response": "Switch(config-if)#"
+        },
+        "shutdown": {
+            "command": "shutdown",
+            "expected_response": "Switch(config-if)#"
+        },
+        "no_shutdown": {
+            "command": "no shutdown",
+            "expected_response": "Switch(config-if)#"
+        },
+        "configure_port_security": {
+            "command": "switchport port-security",
+            "expected_response": "Switch(config-if)#"
+        },
+        "set_port_security_max_mac": {
+            "command": "switchport port-security maximum {max_mac}",
+            "expected_response": "Switch(config-if)#"
+        },
+        "set_port_security_violation": {
+            "command": "switchport port-security violation {action}",
+            "expected_response": "Switch(config-if)#"
+        },
+        "configure_port_channel": {
+            "command": "channel-group {channel_group} mode {mode}",
+            "expected_response": "Switch(config-if)#"
         }
     },
-    "mac_commands": {
+    "show_commands": {
+        "show_vlan": {
+            "command": "show vlan",
+            "expected_response": "Switch#"
+        },
+        "show_vlan_brief": {
+            "command": "show vlan brief",
+            "expected_response": "Switch#"
+        },
+        "show_interface_switchport": {
+            "command": "show interfaces {interface} switchport",
+            "expected_response": "Switch#",
+            "parse_pattern": "Access Mode VLAN:\\s+{vlan_id}"
+        },
+        "show_interface_vlan": {
+            "command": "show interfaces vlan {vlan_id}",
+            "expected_response": "Switch#"
+        },
+        "show_interface_status": {
+            "command": "show interfaces {interface} status",
+            "expected_response": "Switch#"
+        },
+        "show_interface_config": {
+            "command": "show running-config interface {interface}",
+            "expected_response": "Switch#"
+        },
+        "show_port_security": {
+            "command": "show port-security interface {interface}",
+            "expected_response": "Switch#"
+        },
+        "show_port_channel": {
+            "command": "show etherchannel {interface} summary",
+            "expected_response": "Switch#"
+        },
         "show_mac_address_table": {
             "command": "show mac address-table",
             "expected_response": "Mac Address Table",
             "parse_pattern": "\\d+\\s+([0-9a-fA-F]{4}\\.[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4})\\s+\\S+\\s+\\S+"
         },
+        "show_spanning_tree": {
+            "command": "show spanning-tree vlan {vlan}",
+            "expected_response": "VLAN{vlan}",
+            "parse_pattern": "\\S+\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+"
+        },
+        "show_version": {
+            "command": "show version",
+            "expected_response": "Cisco IOS Software",
+            "parse_pattern": "Version\\s+\\S+"
+        },
+        "show_running_config": {
+            "command": "show running-config",
+            "expected_response": "Current configuration",
+            "parse_pattern": ".*"
+        }
+    },
+    "mac_commands": {
         "clear_mac_address_table": {
             "command": "clear mac address-table dynamic",
             "expected_response": "Switch#"
         }
     },
     "spanning_tree_commands": {
-        "show_spanning_tree": {
-            "command": "show spanning-tree vlan {vlan}",
-            "expected_response": "VLAN{vlan}",
-            "parse_pattern": "\\S+\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+"
-        },
         "configure_spanning_tree": {
             "command": "spanning-tree mode {mode}",
             "expected_response": "Switch(config)#",
@@ -115,16 +178,6 @@
         }
     },
     "system_commands": {
-        "show_version": {
-            "command": "show version",
-            "expected_response": "Cisco IOS Software",
-            "parse_pattern": "Version\\s+\\S+"
-        },
-        "show_running_config": {
-            "command": "show running-config",
-            "expected_response": "Current configuration",
-            "parse_pattern": ".*"
-        },
         "configure_terminal": {
             "command": "configure terminal",
             "expected_response": "Switch(config)#"

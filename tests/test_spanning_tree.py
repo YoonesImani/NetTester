@@ -111,7 +111,7 @@ def verify_stp_mode(switch_api: SwitchAPI, command_manager: CommandManager,
     Returns:
         True if mode matches, False otherwise
     """
-    show_cmd = command_manager.format_command('spanning_tree_commands', 'show_spanning_tree', vlan=1)
+    show_cmd = command_manager.format_command('show_commands', 'show_spanning_tree', vlan=1)
     response = switch_api.send_command(show_cmd)
     return mode.lower() in response.lower()
 
@@ -128,7 +128,7 @@ def verify_root_bridge_priority(switch_api: SwitchAPI, command_manager: CommandM
     Returns:
         True if priority matches, False otherwise
     """
-    show_cmd = command_manager.format_command('spanning_tree_commands', 'show_spanning_tree', vlan=vlan_id)
+    show_cmd = command_manager.format_command('show_commands', 'show_spanning_tree', vlan=vlan_id)
     response = switch_api.send_command(show_cmd)
     return str(priority) in response
 
@@ -226,8 +226,7 @@ def test_port_priority(switch_api: SwitchAPI, command_manager: CommandManager, l
         switch_api.send_command(priority_cmd)
         
         # Verify port priority
-        show_cmd = command_manager.format_command('spanning_tree_commands', 
-                                                'show_spanning_tree', vlan=1)
+        show_cmd = command_manager.format_command('show_commands', 'show_spanning_tree', vlan=1)
         logger.debug(f"Sending command: {show_cmd}")
         response = switch_api.send_command(show_cmd)
         assert '64' in response, "Failed to set port priority"

@@ -35,9 +35,9 @@ def test_vlan_creation_example(switch_api: SwitchAPI, command_manager: CommandMa
     switch_api.send_command(name_cmd)
     
     # Verify VLAN creation
-    show_cmd = command_manager.format_command('vlan_commands', 'show_vlan')
+    show_cmd = command_manager.format_command('show_commands', 'show_vlan')
     response = switch_api.send_command(show_cmd)
-    matches = command_manager.parse_response('vlan_commands', 'show_vlan', response)
+    matches = command_manager.parse_response('show_commands', 'show_vlan', response)
     
     assert any('10' in match for match in matches), "VLAN 10 not found in output"
 
@@ -53,9 +53,9 @@ def test_mac_learning_example(switch_api: SwitchAPI, command_manager: CommandMan
     switch_api.send_command(clear_cmd)
     
     # Verify MAC table is empty
-    show_cmd = command_manager.format_command('mac_commands', 'show_mac_address_table')
+    show_cmd = command_manager.format_command('show_commands', 'show_mac_address_table')
     response = switch_api.send_command(show_cmd)
-    matches = command_manager.parse_response('mac_commands', 'show_mac_address_table', response)
+    matches = command_manager.parse_response('show_commands', 'show_mac_address_table', response)
     
     assert len(matches) == 0, "MAC address table not empty after clearing"
 
@@ -78,10 +78,9 @@ def test_spanning_tree_example(switch_api: SwitchAPI, command_manager: CommandMa
     switch_api.send_command(priority_cmd)
     
     # Verify spanning tree configuration
-    show_cmd = command_manager.format_command('spanning_tree_commands', 
-                                            'show_spanning_tree', vlan=1)
+    show_cmd = command_manager.format_command('show_commands', 'show_spanning_tree', vlan=1)
     response = switch_api.send_command(show_cmd)
-    assert command_manager.verify_response('spanning_tree_commands', 
+    assert command_manager.verify_response('show_commands', 
                                          'show_spanning_tree', response, vlan=1)
 
 def run_example_tests(switch_api: SwitchAPI) -> None:

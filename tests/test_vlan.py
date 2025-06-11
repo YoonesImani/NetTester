@@ -70,7 +70,7 @@ def verify_vlan_creation(switch_api: SwitchAPI, command_manager: CommandManager,
     Returns:
         True if VLAN exists with correct name, False otherwise
     """
-    show_cmd = command_manager.format_command('vlan_commands', 'show_vlan_brief')
+    show_cmd = command_manager.format_command('show_commands', 'show_vlan_brief')
     vlan_info = switch_api.send_command(show_cmd)
     
     vlan_list = _parse_vlan_output(vlan_info)
@@ -92,7 +92,7 @@ def verify_vlan_deletion(switch_api: SwitchAPI, command_manager: CommandManager,
     Returns:
         True if VLAN does not exist, False otherwise
     """
-    show_cmd = command_manager.format_command('vlan_commands', 'show_vlan_brief')
+    show_cmd = command_manager.format_command('show_commands', 'show_vlan_brief')
     vlan_info = switch_api.send_command(show_cmd)
     
     vlan_list = _parse_vlan_output(vlan_info)
@@ -115,7 +115,7 @@ def verify_port_vlan_assignment(switch_api: SwitchAPI, command_manager: CommandM
     Returns:
         True if port is assigned to correct VLAN, False otherwise
     """
-    show_cmd = command_manager.format_command('vlan_commands', 'show_vlan_brief')
+    show_cmd = command_manager.format_command('show_commands', 'show_vlan_brief')
     vlan_info = switch_api.send_command(show_cmd)
     
     vlan_list = _parse_vlan_output(vlan_info)

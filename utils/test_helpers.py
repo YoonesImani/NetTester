@@ -1,12 +1,27 @@
 """Common test helper functions for switch testing."""
 
 import logging
-from typing import Optional
+from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from enum import Enum
 from utils.switch_api import SwitchAPI
 from utils.command_manager import CommandManager
 import time
 
 logger = logging.getLogger(__name__)
+
+class TestStatus(Enum):
+    """Test status enumeration"""
+    PASS = "PASS"
+    FAIL = "FAIL"
+    ERROR = "ERROR"
+
+@dataclass
+class TestResult:
+    """Test result data class"""
+    name: str
+    status: TestStatus
+    message: str
 
 def clear_system_messages(switch_api: SwitchAPI, command_manager: CommandManager) -> None:
     """Clear system messages from the switch.
