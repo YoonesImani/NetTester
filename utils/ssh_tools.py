@@ -5,7 +5,6 @@ SSH connection tools for L2 switch testing framework.
 import paramiko
 import time
 from typing import Optional, Union, Dict, Any
-from config.config_manager import ConfigManager
 from .connection import SwitchConnectionBase
 
 class ConnectionError(Exception):
@@ -142,64 +141,3 @@ class SSHConnection(SwitchConnectionBase):
             return self.shell is not None and transport is not None and transport.is_active()
         except Exception:
             return False
-
-def get_connection() -> SwitchConnectionBase:
-    """
-    Create and return a configured switch connection.
-    
-    Returns:
-        SwitchConnectionBase: Connected switch instance
-        
-    Raises:
-        ConnectionError: If connection creation fails
-        ValueError: If configuration is invalid
-    """
-    try:
-        config = ConfigManager()
-        conn_type = config.get('switch', 'connection_type', default='ssh')
-        
-        if conn_type == 'ssh':
-            creds = config.get('switch', 'ssh')
-            if not isinstance(creds, dict):
-                raise ValueError("SSH configuration must be a dictionary")
-            
-            required_fields = ['host', 'username', 'password']
-            missing_fields = [field for field in required_fields if field not in creds]
-            if missing_fields:
-                raise ValueError(f"Missing required SSH configuration fields: {', '.join(missing_fields)}")
-            
-            timeout = creds.get('timeout', 10)
-            conn = SSHConnection(
-                host=creds['host'],
-                username=creds['username'],
-                password=creds['password'],
-                port=creds.get('port', 22),
-                timeout=timeout
-            )
-        else:  # serial
-            from .serial_connection import SerialConnection
-            serial_config = config.get('switch', 'serial')
-            if not isinstance(serial_config, dict):
-                raise ValueError("Serial configuration must be a dictionary")
-            
-            if 'port' not in serial_config:
-                raise ValueError("Missing required serial configuration field: port")
-            
-            conn = SerialConnection(
-                port=serial_config['port'],
-                baudrate=serial_config.get('baudrate', 9600),
-                timeout=serial_config.get('timeout', 10),
-                parity=serial_config.get('parity', 'N'),
-                stopbits=serial_config.get('stopbits', 1),
-                bytesize=serial_config.get('bytesize', 8),
-                xonxoff=serial_config.get('xonxoff', False),
-                rtscts=serial_config.get('rtscts', False)
-            )
-        
-        conn.connect()
-        return conn
-        
-    except (ValueError, ConnectionError):
-        raise
-    except Exception as e:
-        raise ConnectionError(f"Failed to create connection: {str(e)}")

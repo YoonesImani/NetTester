@@ -1,5 +1,5 @@
 switch:
-  connection_type: "serial"  # can be "ssh" or "serial"
+  connection_type: "telnet"  # can be "ssh", "serial", or "telnet"
   
   # SSH connection settings for Cisco 2960
   ssh:
@@ -9,6 +9,14 @@ switch:
     port: 22             # Default SSH port for Cisco switches
     timeout: 10          # Connection timeout in seconds
     enable_password: "cisco"  # Enable mode password (if different from login password)
+  
+  # Telnet connection settings for Cisco 2960
+  telnet:
+    host: "192.168.100.190"  # Change this to your switch's IP address
+    username: "admin"     # Change this to your switch's username (optional for some switches)
+    password: "cisco"     # Change this to your switch's password (optional for some switches)
+    port: 23             # Default telnet port
+    timeout: 10          # Connection timeout in seconds
   
   # Serial connection settings for Cisco 2960
   serial:
