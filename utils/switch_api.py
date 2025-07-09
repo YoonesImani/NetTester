@@ -1857,3 +1857,367 @@ class SwitchAPI:
                 
         except Exception as e:
             return False, f"Failed to test STP convergence: {str(e)}"
+
+    # ==================== L3 ROUTING METHODS ====================
+    
+    def configure_interface_ip(self, interface: str, ip_address: str, subnet_mask: str) -> Tuple[bool, str]:
+        """
+        Configure IP address on an interface.
+        
+        Args:
+            interface: Interface name (e.g., "FastEthernet0/0")
+            ip_address: IP address to configure
+            subnet_mask: Subnet mask
+            
+        Returns:
+            Tuple[bool, str]: (success status, error message if any)
+        """
+        try:
+            if not self._connection_manager.is_connected():
+                raise SwitchAPIError("Not connected to switch")
+            
+            # Enter configuration mode
+            logger.info("Entering config mode")
+            config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
+            self._connection_manager.send_command(config_cmd)
+            time.sleep(2)
+            
+            # Enter interface configuration
+            logger.info(f"Configuring interface {interface}")
+            interface_cmd = self._command_manager.format_command('interface_commands', 'configure_interface', 
+                                                              interface=interface)
+            self._connection_manager.send_command(interface_cmd)
+            time.sleep(2)
+            
+            # Configure IP address
+            ip_cmd = f"ip address {ip_address} {subnet_mask}"
+            self._connection_manager.send_command(ip_cmd)
+            time.sleep(2)
+            
+            # Exit interface configuration
+            self._connection_manager.send_command("exit")
+            time.sleep(2)
+            
+            # Exit configuration mode
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection_manager.send_command(end_cmd)
+            time.sleep(2)
+            
+            return True, ""
+            
+        except Exception as e:
+            return False, f"Error configuring interface IP: {str(e)}"
+
+    def add_static_route(self, network: str, mask: str, next_hop: str) -> Tuple[bool, str]:
+        """
+        Add a static route.
+        
+        Args:
+            network: Destination network
+            mask: Subnet mask
+            next_hop: Next hop IP address
+            
+        Returns:
+            Tuple[bool, str]: (success status, error message if any)
+        """
+        try:
+            if not self._connection_manager.is_connected():
+                raise SwitchAPIError("Not connected to switch")
+            
+            # Enter configuration mode
+            logger.info("Entering config mode")
+            config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
+            self._connection_manager.send_command(config_cmd)
+            time.sleep(2)
+            
+            # Add static route
+            route_cmd = f"ip route {network} {mask} {next_hop}"
+            self._connection_manager.send_command(route_cmd)
+            time.sleep(2)
+            
+            # Exit configuration mode
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection_manager.send_command(end_cmd)
+            time.sleep(2)
+            
+            return True, ""
+            
+        except Exception as e:
+            return False, f"Error adding static route: {str(e)}"
+
+    def remove_static_route(self, network: str, mask: str, next_hop: str) -> Tuple[bool, str]:
+        """
+        Remove a static route.
+        
+        Args:
+            network: Destination network
+            mask: Subnet mask
+            next_hop: Next hop IP address
+            
+        Returns:
+            Tuple[bool, str]: (success status, error message if any)
+        """
+        try:
+            if not self._connection_manager.is_connected():
+                raise SwitchAPIError("Not connected to switch")
+            
+            # Enter configuration mode
+            logger.info("Entering config mode")
+            config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
+            self._connection_manager.send_command(config_cmd)
+            time.sleep(2)
+            
+            # Remove static route
+            route_cmd = f"no ip route {network} {mask} {next_hop}"
+            self._connection_manager.send_command(route_cmd)
+            time.sleep(2)
+            
+            # Exit configuration mode
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection_manager.send_command(end_cmd)
+            time.sleep(2)
+            
+            return True, ""
+            
+        except Exception as e:
+            return False, f"Error removing static route: {str(e)}"
+
+    def configure_ospf(self, process_id: str, network: str, wildcard_mask: str, area: str) -> Tuple[bool, str]:
+        """
+        Configure OSPF routing protocol.
+        
+        Args:
+            process_id: OSPF process ID
+            network: Network to advertise
+            wildcard_mask: Wildcard mask
+            area: OSPF area
+            
+        Returns:
+            Tuple[bool, str]: (success status, error message if any)
+        """
+        try:
+            if not self._connection_manager.is_connected():
+                raise SwitchAPIError("Not connected to switch")
+            
+            # Enter configuration mode
+            logger.info("Entering config mode")
+            config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
+            self._connection_manager.send_command(config_cmd)
+            time.sleep(2)
+            
+            # Configure OSPF process
+            ospf_cmd = f"router ospf {process_id}"
+            self._connection_manager.send_command(ospf_cmd)
+            time.sleep(2)
+            
+            # Configure network
+            network_cmd = f"network {network} {wildcard_mask} area {area}"
+            self._connection_manager.send_command(network_cmd)
+            time.sleep(2)
+            
+            # Exit router configuration
+            self._connection_manager.send_command("exit")
+            time.sleep(2)
+            
+            # Exit configuration mode
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection_manager.send_command(end_cmd)
+            time.sleep(2)
+            
+            return True, ""
+            
+        except Exception as e:
+            return False, f"Error configuring OSPF: {str(e)}"
+
+    def configure_eigrp(self, as_number: str, network: str) -> Tuple[bool, str]:
+        """
+        Configure EIGRP routing protocol.
+        
+        Args:
+            as_number: EIGRP autonomous system number
+            network: Network to advertise
+            
+        Returns:
+            Tuple[bool, str]: (success status, error message if any)
+        """
+        try:
+            if not self._connection_manager.is_connected():
+                raise SwitchAPIError("Not connected to switch")
+            
+            # Enter configuration mode
+            logger.info("Entering config mode")
+            config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
+            self._connection_manager.send_command(config_cmd)
+            time.sleep(2)
+            
+            # Configure EIGRP process
+            eigrp_cmd = f"router eigrp {as_number}"
+            self._connection_manager.send_command(eigrp_cmd)
+            time.sleep(2)
+            
+            # Configure network
+            network_cmd = f"network {network}"
+            self._connection_manager.send_command(network_cmd)
+            time.sleep(2)
+            
+            # Exit router configuration
+            self._connection_manager.send_command("exit")
+            time.sleep(2)
+            
+            # Exit configuration mode
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection_manager.send_command(end_cmd)
+            time.sleep(2)
+            
+            return True, ""
+            
+        except Exception as e:
+            return False, f"Error configuring EIGRP: {str(e)}"
+
+    def configure_bgp(self, as_number: str, neighbor_ip: str, neighbor_as: str) -> Tuple[bool, str]:
+        """
+        Configure BGP routing protocol.
+        
+        Args:
+            as_number: Local AS number
+            neighbor_ip: BGP neighbor IP address
+            neighbor_as: BGP neighbor AS number
+            
+        Returns:
+            Tuple[bool, str]: (success status, error message if any)
+        """
+        try:
+            if not self._connection_manager.is_connected():
+                raise SwitchAPIError("Not connected to switch")
+            
+            # Enter configuration mode
+            logger.info("Entering config mode")
+            config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
+            self._connection_manager.send_command(config_cmd)
+            time.sleep(2)
+            
+            # Configure BGP process
+            bgp_cmd = f"router bgp {as_number}"
+            self._connection_manager.send_command(bgp_cmd)
+            time.sleep(2)
+            
+            # Configure neighbor
+            neighbor_cmd = f"neighbor {neighbor_ip} remote-as {neighbor_as}"
+            self._connection_manager.send_command(neighbor_cmd)
+            time.sleep(2)
+            
+            # Exit router configuration
+            self._connection_manager.send_command("exit")
+            time.sleep(2)
+            
+            # Exit configuration mode
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection_manager.send_command(end_cmd)
+            time.sleep(2)
+            
+            return True, ""
+            
+        except Exception as e:
+            return False, f"Error configuring BGP: {str(e)}"
+
+    def create_acl(self, acl_name: str, sequence: str, action: str, protocol: str, 
+                   source: str, source_wildcard: str, destination: str) -> Tuple[bool, str]:
+        """
+        Create an Access Control List.
+        
+        Args:
+            acl_name: Name of the ACL
+            sequence: Sequence number
+            action: Permit or deny
+            protocol: Protocol (ip, tcp, udp, etc.)
+            source: Source network
+            source_wildcard: Source wildcard mask
+            destination: Destination network
+            
+        Returns:
+            Tuple[bool, str]: (success status, error message if any)
+        """
+        try:
+            if not self._connection_manager.is_connected():
+                raise SwitchAPIError("Not connected to switch")
+            
+            # Enter configuration mode
+            logger.info("Entering config mode")
+            config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
+            self._connection_manager.send_command(config_cmd)
+            time.sleep(2)
+            
+            # Create ACL
+            acl_cmd = f"ip access-list extended {acl_name}"
+            self._connection_manager.send_command(acl_cmd)
+            time.sleep(2)
+            
+            # Add ACL entry
+            if destination == "any":
+                entry_cmd = f"{sequence} {action} {protocol} {source} {source_wildcard} any"
+            else:
+                entry_cmd = f"{sequence} {action} {protocol} {source} {source_wildcard} {destination}"
+            
+            self._connection_manager.send_command(entry_cmd)
+            time.sleep(2)
+            
+            # Exit ACL configuration
+            self._connection_manager.send_command("exit")
+            time.sleep(2)
+            
+            # Exit configuration mode
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection_manager.send_command(end_cmd)
+            time.sleep(2)
+            
+            return True, ""
+            
+        except Exception as e:
+            return False, f"Error creating ACL: {str(e)}"
+
+    def apply_acl_to_interface(self, acl_name: str, interface: str, direction: str) -> Tuple[bool, str]:
+        """
+        Apply ACL to an interface.
+        
+        Args:
+            acl_name: Name of the ACL
+            interface: Interface name
+            direction: in or out
+            
+        Returns:
+            Tuple[bool, str]: (success status, error message if any)
+        """
+        try:
+            if not self._connection_manager.is_connected():
+                raise SwitchAPIError("Not connected to switch")
+            
+            # Enter configuration mode
+            logger.info("Entering config mode")
+            config_cmd = self._command_manager.format_command('system_commands', 'configure_terminal')
+            self._connection_manager.send_command(config_cmd)
+            time.sleep(2)
+            
+            # Enter interface configuration
+            interface_cmd = self._command_manager.format_command('interface_commands', 'configure_interface', 
+                                                              interface=interface)
+            self._connection_manager.send_command(interface_cmd)
+            time.sleep(2)
+            
+            # Apply ACL
+            acl_cmd = f"ip access-group {acl_name} {direction}"
+            self._connection_manager.send_command(acl_cmd)
+            time.sleep(2)
+            
+            # Exit interface configuration
+            self._connection_manager.send_command("exit")
+            time.sleep(2)
+            
+            # Exit configuration mode
+            end_cmd = self._command_manager.format_command('system_commands', 'end')
+            self._connection_manager.send_command(end_cmd)
+            time.sleep(2)
+            
+            return True, ""
+            
+        except Exception as e:
+            return False, f"Error applying ACL: {str(e)}"

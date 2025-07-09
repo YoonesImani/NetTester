@@ -1,0 +1,137 @@
+# GNS3 c7200 Router Configuration Example
+# This configuration is designed for testing Cisco c7200 routers in GNS3
+
+switch:
+  connection_type: telnet  # Use telnet for GNS3 routers
+  telnet:
+    host: "127.0.0.1"      # GNS3 typically uses localhost
+    port: 5001             # GNS3 telnet port (varies by router instance)
+    username: "cisco"      # Default GNS3 username
+    password: "cisco"      # Default GNS3 password
+    timeout: 10
+
+# L3 Routing specific configuration
+routing:
+  # Interface configurations
+  interfaces:
+    - name: "FastEthernet0/0"
+      ip_address: "192.168.1.1"
+      subnet_mask: "255.255.255.0"
+      description: "LAN Interface"
+    - name: "FastEthernet0/1"
+      ip_address: "10.0.0.1"
+      subnet_mask: "255.255.255.0"
+      description: "WAN Interface"
+    - name: "Serial0/0"
+      ip_address: "172.16.0.1"
+      subnet_mask: "255.255.255.0"
+      description: "Serial Interface"
+
+  # Static routes
+  static_routes:
+    - network: "0.0.0.0"
+      mask: "0.0.0.0"
+      next_hop: "10.0.0.2"
+      description: "Default route"
+
+  # OSPF configuration
+  ospf:
+    process_id: "1"
+    networks:
+      - network: "192.168.1.0"
+        wildcard_mask: "0.0.0.255"
+        area: "0"
+      - network: "10.0.0.0"
+        wildcard_mask: "0.0.0.255"
+        area: "0"
+
+  # EIGRP configuration
+  eigrp:
+    as_number: "100"
+    networks:
+      - "192.168.1.0"
+      - "10.0.0.0"
+
+  # BGP configuration
+  bgp:
+    local_as: "65001"
+    neighbors:
+      - ip: "10.0.0.2"
+        remote_as: "65002"
+
+  # ACL configurations
+  acls:
+    - name: "PERMIT_LAN"
+      entries:
+        - sequence: "10"
+          action: "permit"
+          protocol: "ip"
+          source: "192.168.1.0"
+          source_wildcard: "0.0.0.255"
+          destination: "any"
+    - name: "DENY_BROADCAST"
+      entries:
+        - sequence: "10"
+          action: "deny"
+          protocol: "ip"
+          source: "any"
+          source_wildcard: "any"
+          destination: "255.255.255.255"
+          destination_wildcard: "0.0.0.0"
+
+# Test configuration
+testing:
+  # Test timeouts
+  timeouts:
+    command: 5
+    connection: 10
+    test: 30
+
+  # Test data
+  test_vlans:
+    - id: "100"
+      name: "TEST_VLAN_100"
+    - id: "200"
+      name: "TEST_VLAN_200"
+
+  test_networks:
+    - network: "192.168.10.0"
+      mask: "255.255.255.0"
+      next_hop: "192.168.1.2"
+
+# Logging configuration
+logging:
+  level: "INFO"
+  file: "logs/gns3_c7200_tests.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# GNS3 specific settings
+gns3:
+  # GNS3 project settings
+  project_name: "L3_Routing_Tests"
+  
+  # Router settings
+  router:
+    model: "c7200"
+    ios_image: "c7200-adventerprisek9-mz.124-24.T5.bin"
+    ram: 256
+    nvram: 64
+    
+  # Network topology
+  topology:
+    - router: "R1"
+      interfaces:
+        - name: "FastEthernet0/0"
+          ip: "192.168.1.1"
+          connected_to: "PC1"
+        - name: "FastEthernet0/1"
+          ip: "10.0.0.1"
+          connected_to: "R2"
+    - router: "R2"
+      interfaces:
+        - name: "FastEthernet0/0"
+          ip: "10.0.0.2"
+          connected_to: "R1"
+        - name: "FastEthernet0/1"
+          ip: "172.16.0.1"
+          connected_to: "R3" 

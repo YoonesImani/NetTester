@@ -36,9 +36,9 @@ def verify_mac_address(switch_api: SwitchAPI, command_manager: CommandManager,
     Returns:
         True if MAC address is found, False otherwise
     """
-    show_cmd = command_manager.format_command('mac_commands', 'show_mac_address_table')
+    show_cmd = command_manager.format_command('show_commands', 'show_mac_address_table')
     response = switch_api.send_command(show_cmd)
-    matches = command_manager.parse_response('mac_commands', 'show_mac_address_table', response)
+    matches = command_manager.parse_response('show_commands', 'show_mac_address_table', response)
     
     return any(mac_address in match and f"{vlan_id}" in match for match in matches)
 
@@ -51,9 +51,9 @@ def test_mac_table_clear(switch_api: SwitchAPI, command_manager: CommandManager,
         switch_api.send_command(clear_cmd)
         
         # Verify MAC table is empty
-        show_cmd = command_manager.format_command('mac_commands', 'show_mac_address_table')
+        show_cmd = command_manager.format_command('show_commands', 'show_mac_address_table')
         response = switch_api.send_command(show_cmd)
-        matches = command_manager.parse_response('mac_commands', 'show_mac_address_table', response)
+        matches = command_manager.parse_response('show_commands', 'show_mac_address_table', response)
         
         assert len(matches) == 0, "MAC address table not empty after clearing"
         logger.info("[PASS] MAC table clear test completed successfully")
@@ -66,22 +66,24 @@ def test_mac_learning(switch_api: SwitchAPI, command_manager: CommandManager, lo
     """Test MAC address learning."""
     logger.info("Starting MAC learning test")
     try:
+        # Enter configure terminal
+        config_cmd = command_manager.format_command('system_commands' , 'configure_terminal')
+        switch_api.send_command(config_cmd) 
+                
         # Configure interface for MAC learning
         interface_cmd = command_manager.format_command('interface_commands', 'configure_interface',
-                                                     interface_name='FastEthernet0/1')
+                                                     interface='FastEthernet0/1')
         switch_api.send_command(interface_cmd)
         
         # Set port mode
-        mode_cmd = command_manager.format_command('interface_commands', 'configure_interface',
-                                                interface_name='FastEthernet0/1',
-                                                subcommand='switchport_mode_access')
+        mode_cmd = command_manager.format_command('interface_commands', 'switchport_mode_access',
+                                                interface='FastEthernet0/1')
         switch_api.send_command(mode_cmd)
         
         # Assign VLAN
-        vlan_cmd = command_manager.format_command('interface_commands', 'configure_interface',
-                                                interface_name='FastEthernet0/1',
-                                                subcommand='switchport_access_vlan',
-                                                vlan_id=10)
+        vlan_cmd = command_manager.format_command('interface_commands', 'switchport_access_vlan',
+                                                interface='FastEthernet0/1',
+                                                vlan_id=1)
         switch_api.send_command(vlan_cmd)
         
         # Exit configuration mode
@@ -89,8 +91,8 @@ def test_mac_learning(switch_api: SwitchAPI, command_manager: CommandManager, lo
         switch_api.send_command(end_cmd)
         
         # Verify MAC learning
-        test_mac = "00:11:22:33:44:55"
-        assert verify_mac_address(switch_api, command_manager, test_mac, 10), \
+        test_mac = "000c.29c8.ca31"
+        assert verify_mac_address(switch_api, command_manager, test_mac, 1), \
             f"Failed to learn MAC address {test_mac}"
         logger.info("[PASS] MAC learning test completed successfully")
         
@@ -102,27 +104,29 @@ def test_mac_aging(switch_api: SwitchAPI, command_manager: CommandManager, logge
     """Test MAC address aging."""
     logger.info("Starting MAC aging test")
     try:
+        # Enter configure terminal
+        config_cmd = command_manager.format_command('system_commands' , 'configure_terminal')
+        switch_api.send_command(config_cmd)
+
         # Configure interface
         interface_cmd = command_manager.format_command('interface_commands', 'configure_interface',
-                                                     interface_name='FastEthernet0/1')
+                                                     interface='FastEthernet0/1')
         switch_api.send_command(interface_cmd)
         
         # Set port mode
-        mode_cmd = command_manager.format_command('interface_commands', 'configure_interface',
-                                                interface_name='FastEthernet0/1',
-                                                subcommand='switchport_mode_access')
+        mode_cmd = command_manager.format_command('interface_commands', 'switchport_mode_access',
+                                                interface='FastEthernet0/1')
         switch_api.send_command(mode_cmd)
         
         # Assign VLAN
-        vlan_cmd = command_manager.format_command('interface_commands', 'configure_interface',
-                                                interface_name='FastEthernet0/1',
-                                                subcommand='switchport_access_vlan',
-                                                vlan_id=10)
+        vlan_cmd = command_manager.format_command('interface_commands', 'switchport_access_vlan',
+                                                interface='FastEthernet0/1',
+                                                vlan_id=1)
         switch_api.send_command(vlan_cmd)
         
         # Add test MAC address
-        test_mac = "00:11:22:33:44:55"
-        assert verify_mac_address(switch_api, command_manager, test_mac, 10), \
+        test_mac = "000c.29c8.ca31"
+        assert verify_mac_address(switch_api, command_manager, test_mac, 1), \
             f"Failed to learn MAC address {test_mac}"
         
         # Wait for aging
@@ -188,7 +192,7 @@ def test_mac_filtering(switch: SwitchAPI, logger: logging.Logger) -> Tuple[bool,
     """
     try:
         # Configure MAC filtering
-        test_mac = "0000.0000.0001"
+        test_mac = "ac22.0b4b.8cae"
         test_vlan = "1"
         logger.info(f"Configuring MAC filtering for {test_mac} in VLAN {test_vlan}")
         success, error = switch.configure_mac_filtering(test_mac, test_vlan)

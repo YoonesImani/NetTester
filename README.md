@@ -235,6 +235,56 @@ graph LR
    - Ensure you're running commands from the correct directory
    - Verify platform-specific commands are being used correctly
 
+## Connection Management Architecture
+
+The connection management system has been refactored to be object-oriented, cleaner, and easier to use. It uses a factory pattern for creating connections and context managers for automatic resource management.
+
+### Architecture
+
+```
+ConnectionFactory (Factory Pattern)
+    ↓ creates
+ConnectionManager (Connection Management)
+    ↓ manages
+SwitchConnectionBase (Abstract Base)
+    ↓ implemented by
+SSHConnection / TelnetConnection / SerialConnection
+```
+
+### Usage Patterns
+
+#### Context Manager (Recommended)
+
+```python
+from utils.connection_context import switch_connection
+
+# Simple and clean - automatic cleanup
+with switch_connection() as switch:
+    result = switch.send_command("show version")
+    print(result)
+```
+
+#### Traditional OOP
+
+```python
+from utils.connection_manager import ConnectionManager
+from utils.switch_api import SwitchAPI
+from config.config_manager import ConfigManager
+
+# Initialize components
+config = ConfigManager()
+conn_manager = ConnectionManager(config)
+switch_api = SwitchAPI(conn_manager)
+
+try:
+    # Use the switch
+    result = switch_api.send_command("show vlan brief")
+    print(result)
+finally:
+    # Manual cleanup
+    switch_api.disconnect()
+```
+
 ## Version Information
 
 This is version v0.7-beta of the Memory Bank system. It introduces significant token optimization improvements over v0.6-beta while maintaining all functionality. See the [Release Notes](RELEASE_NOTES.md) for detailed information about the changes.

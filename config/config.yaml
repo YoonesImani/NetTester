@@ -1,9 +1,9 @@
 switch:
-  connection_type: "telnet"  # can be "ssh", "serial", or "telnet"
+  connection_type: "serial"  # can be "ssh", "serial", or "telnet"
   
   # SSH connection settings for Cisco 2960
   ssh:
-    host: "192.168.1.1"  # Change this to your switch's IP address
+    host: "192.168.100.190"  # Change this to your switch's IP address
     username: "admin"     # Change this to your switch's username
     password: "cisco"     # Change this to your switch's password
     port: 22             # Default SSH port for Cisco switches

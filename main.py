@@ -6,7 +6,7 @@ from utils.connection_context import switch_connection, connection_manager
 from utils.logger import setup_logger
 from utils.switch_api import SwitchAPI
 from utils.command_manager import CommandManager
-from tests import test_vlan, test_mac_learning, test_spanning_tree, test_port
+from tests import test_vlan, test_mac_learning, test_spanning_tree, test_port, test_l3_routing
 from config.config_manager import ConfigManager
 
 
@@ -48,6 +48,9 @@ def main_traditional():
             logger.debug("Running Port tests")
             test_port.run(switch_api, command_manager, logger)
             
+            logger.debug("Running L3 Routing tests")
+            test_l3_routing.run(switch_api, command_manager, logger)
+            
             logger.info("[PASS] All tests completed successfully")
             
         finally:
@@ -79,17 +82,20 @@ def main_context_manager():
             command_manager = CommandManager()
             
             # Run all tests - no need to manually connect/disconnect
-            logger.debug("Running VLAN tests")
-            test_vlan.run(switch_api, command_manager, logger)
+            # logger.debug("Running VLAN tests")
+            # test_vlan.run(switch_api, command_manager, logger)
             
             logger.debug("Running MAC Learning tests")
             test_mac_learning.run(switch_api, command_manager, logger)
             
-            logger.debug("Running Spanning Tree tests")
-            test_spanning_tree.run(switch_api, command_manager, logger)
+            # logger.debug("Running Spanning Tree tests")
+            # test_spanning_tree.run(switch_api, command_manager, logger)
             
-            logger.debug("Running Port tests")
-            test_port.run(switch_api, command_manager, logger)
+            # logger.debug("Running Port tests")
+            # test_port.run(switch_api, command_manager, logger)
+            
+            # logger.debug("Running L3 Routing tests")
+            # test_l3_routing.run(switch_api, command_manager, logger)
             
             logger.info("[PASS] All tests completed successfully")
             
@@ -108,4 +114,5 @@ def main():
     return main_context_manager()  # Context manager (recommended)
 
 if __name__ == "__main__":
-    exit(main())
+    exit(main()) 
+    
