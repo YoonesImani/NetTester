@@ -123,6 +123,10 @@ def test_mac_aging(switch_api: SwitchAPI, command_manager: CommandManager, logge
                                                 interface='FastEthernet0/1',
                                                 vlan_id=1)
         switch_api.send_command(vlan_cmd)
+
+        # Exit configuration mode
+        end_cmd = command_manager.format_command('system_commands', 'end')
+        switch_api.send_command(end_cmd)
         
         # Add test MAC address
         test_mac = "000c.29c8.ca31"
