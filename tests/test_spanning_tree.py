@@ -535,62 +535,32 @@ def run(switch_api: SwitchAPI, command_manager: CommandManager, logger: logging.
     Returns:
         bool: True if all tests passed, False otherwise
     """
-    test_results = []
+    logger.info("Starting Spanning Tree test suite")
     
-    try:
-        # Set up test environment
-        logger.info("Setting up test environment")
-        setup_test_environment(switch_api, command_manager)
-        
-        # Run tests
-        logger.info("Starting Spanning Tree test suite")
-        
-        # Test STP mode
-        try:
-            test_stp_mode(switch_api, command_manager, logger)
-            test_results.append(("STP Mode", True))
-        except Exception as e:
-            test_results.append(("STP Mode", False, str(e)))
-        
-        # Test root bridge priority
-        try:
-            test_root_bridge_priority(switch_api, command_manager, logger)
-            test_results.append(("Root Bridge Priority", True))
-        except Exception as e:
-            test_results.append(("Root Bridge Priority", False, str(e)))
-        
-        # Test port cost
-        try:
-            test_port_cost(switch_api, command_manager, logger)
-            test_results.append(("Port Cost", True))
-        except Exception as e:
-            test_results.append(("Port Cost", False, str(e)))
-        
-        # Test port priority
-        try:
-            test_port_priority(switch_api, command_manager, logger)
-            test_results.append(("Port Priority", True))
-        except Exception as e:
-            test_results.append(("Port Priority", False, str(e)))
-        
-        # Log test results
-        logger.info("\nSpanning Tree Test Suite Results:")
-        logger.info("-" * 50)
-        all_passed = True
-        for test_name, *result in test_results:
-            if len(result) == 1 and result[0]:  # Test passed
-                logger.info(f"[PASS] {test_name}")
-            else:  # Test failed
-                all_passed = False
-                error_msg = result[1] if len(result) > 1 else "Unknown error"
-                logger.error(f"[FAIL] {test_name}: {error_msg}")
-        logger.info("-" * 50)
-        
-        return all_passed
+    test_functions = [
+        test_stp_mode,
+        test_root_bridge_priority,
+        test_port_cost,
+        test_port_priority
+    ]
     
-    except Exception as e:
-        logger.error(f"Spanning Tree test suite failed: {e}")
-        return False
+    passed_tests = 0
+    total_tests = len(test_functions)
+    
+    # Set up test environment
+    logger.info("Setting up test environment")
+    setup_test_environment(switch_api, command_manager)
+    
+    for test_func in test_functions:
+        try:
+            test_func(switch_api, command_manager, logger)
+            passed_tests += 1
+        except Exception as e:
+            logger.error(f"Test {test_func.__name__} failed: {str(e)}")
+            continue
+    
+    logger.info(f"Spanning Tree test suite completed: {passed_tests}/{total_tests} tests passed")
+    return passed_tests == total_tests
 
 if __name__ == "__main__":
     # Example usage

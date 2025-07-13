@@ -390,91 +390,36 @@ def run(switch_api: SwitchAPI, command_manager: CommandManager, logger: logging.
     Returns:
         bool: True if all tests passed, False otherwise
     """
-    test_results = []
+    logger.info("Starting VLAN test suite")
     
-    try:
-        # Set up test environment
-        logger.info("Setting up test environment")
-        setup_test_environment(switch_api, command_manager)
-        
-        # Run tests
-        logger.info("Starting VLAN test suite")
-        
-        # Test VLAN creation
-        try:
-            test_vlan_creation(switch_api, command_manager, logger)
-            test_results.append(("VLAN Creation", True))
-        except Exception as e:
-            test_results.append(("VLAN Creation", False, str(e)))
-        
-        # Test VLAN deletion
-        try:
-            test_vlan_deletion(switch_api, command_manager, logger)
-            test_results.append(("VLAN Deletion", True))
-        except Exception as e:
-            test_results.append(("VLAN Deletion", False, str(e)))
-        
-        # Test VLAN port assignment
-        try:
-            test_vlan_port_assignment(switch_api, command_manager, logger)
-            test_results.append(("VLAN Port Assignment", True))
-        except Exception as e:
-            test_results.append(("VLAN Port Assignment", False, str(e)))
-
-        # Test VLAN trunk configuration
-        try:
-            test_vlan_trunk_configuration(switch_api, command_manager, logger)
-            test_results.append(("VLAN Trunk Configuration", True))
-        except Exception as e:
-            test_results.append(("VLAN Trunk Configuration", False, str(e)))
-
-        # Test VLAN interface
-        try:
-            test_vlan_interface(switch_api, command_manager, logger)
-            test_results.append(("VLAN Interface", True))
-        except Exception as e:
-            test_results.append(("VLAN Interface", False, str(e)))
-        
-        # Test Voice VLAN
-        try:
-            test_voice_vlan(switch_api, command_manager, logger)
-            test_results.append(("Voice VLAN", True))
-        except Exception as e:
-            test_results.append(("Voice VLAN", False, str(e)))
-
-        # Test VLAN ACL
-        try:
-            test_vlan_acl(switch_api, command_manager, logger)
-            test_results.append(("VLAN ACL", True))
-        except Exception as e:
-            test_results.append(("VLAN ACL", False, str(e)))
-
-        # Test Private VLAN
-
-        try:
-            test_private_vlan(switch_api, command_manager, logger)
-            test_results.append(("Private VLAN", True))
-        except Exception as e:
-            test_results.append(("Private VLAN", False, str(e)))
-
-        # Log test results
-        logger.info("\nVLAN Test Suite Results:")
-        logger.info("-" * 50)
-        all_passed = True
-        for test_name, *result in test_results:
-            if len(result) == 1 and result[0]:  # Test passed
-                logger.info(f"[PASS] {test_name}")
-            else:  # Test failed
-                all_passed = False
-                error_msg = result[1] if len(result) > 1 else "Unknown error"
-                logger.error(f"[FAIL] {test_name}: {error_msg}")
-        logger.info("-" * 50)
-        
-        return all_passed
+    test_functions = [
+        test_vlan_creation,
+        test_vlan_deletion,
+        test_vlan_port_assignment,
+        test_vlan_trunk_configuration,
+        test_vlan_interface,
+        test_voice_vlan,
+        test_vlan_acl,
+        test_private_vlan
+    ]
     
-    except Exception as e:
-        logger.error(f"VLAN test suite failed: {e}")
-        return False
+    passed_tests = 0
+    total_tests = len(test_functions)
+    
+    # Set up test environment
+    logger.info("Setting up test environment")
+    setup_test_environment(switch_api, command_manager)
+    
+    for test_func in test_functions:
+        try:
+            test_func(switch_api, command_manager, logger)
+            passed_tests += 1
+        except Exception as e:
+            logger.error(f"Test {test_func.__name__} failed: {str(e)}")
+            continue
+    
+    logger.info(f"VLAN test suite completed: {passed_tests}/{total_tests} tests passed")
+    return passed_tests == total_tests
 
 if __name__ == "__main__":
     # Example usage

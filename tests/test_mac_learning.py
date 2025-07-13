@@ -267,55 +267,31 @@ def run(switch_api: SwitchAPI, command_manager: CommandManager, logger: logging.
     Returns:
         bool: True if all tests passed, False otherwise
     """
-    test_results = []
+    logger.info("Starting MAC Learning test suite")
     
-    try:
-        # Set up test environment
-        logger.info("Setting up test environment")
-        setup_test_environment(switch_api, command_manager)
-        
-        # Run tests
-        logger.info("Starting MAC Learning test suite")
-        
-        # Test MAC table clear
-        try:
-            test_mac_table_clear(switch_api, command_manager, logger)
-            test_results.append(("MAC Table Clear", True))
-        except Exception as e:
-            test_results.append(("MAC Table Clear", False, str(e)))
-        
-        # Test MAC learning
-        try:
-            test_mac_learning(switch_api, command_manager, logger)
-            test_results.append(("MAC Learning", True))
-        except Exception as e:
-            test_results.append(("MAC Learning", False, str(e)))
-        
-        # Test MAC aging
-        try:
-            test_mac_aging(switch_api, command_manager, logger)
-            test_results.append(("MAC Aging", True))
-        except Exception as e:
-            test_results.append(("MAC Aging", False, str(e)))
-        
-        # Log test results
-        logger.info("\nMAC Learning Test Suite Results:")
-        logger.info("-" * 50)
-        all_passed = True
-        for test_name, *result in test_results:
-            if len(result) == 1 and result[0]:  # Test passed
-                logger.info(f"[PASS] {test_name}")
-            else:  # Test failed
-                all_passed = False
-                error_msg = result[1] if len(result) > 1 else "Unknown error"
-                logger.error(f"[FAIL] {test_name}: {error_msg}")
-        logger.info("-" * 50)
-        
-        return all_passed
+    test_functions = [
+        test_mac_table_clear,
+        test_mac_learning,
+        test_mac_aging
+    ]
     
-    except Exception as e:
-        logger.error(f"MAC learning test suite failed: {e}")
-        return False
+    passed_tests = 0
+    total_tests = len(test_functions)
+    
+    # Set up test environment
+    logger.info("Setting up test environment")
+    setup_test_environment(switch_api, command_manager)
+    
+    for test_func in test_functions:
+        try:
+            test_func(switch_api, command_manager, logger)
+            passed_tests += 1
+        except Exception as e:
+            logger.error(f"Test {test_func.__name__} failed: {str(e)}")
+            continue
+    
+    logger.info(f"MAC Learning test suite completed: {passed_tests}/{total_tests} tests passed")
+    return passed_tests == total_tests
 
 if __name__ == "__main__":
     # Example usage

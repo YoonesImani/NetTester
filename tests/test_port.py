@@ -500,62 +500,32 @@ def run(switch_api: SwitchAPI, command_manager: CommandManager, logger: logging.
     Returns:
         bool: True if all tests passed, False otherwise
     """
-    test_results = []
+    logger.info("Starting port test suite")
     
-    try:
-        # Set up test environment
-        logger.info("Setting up test environment")
-        setup_test_environment(switch_api, command_manager)
-        
-        # Run tests
-        logger.info("Starting port test suite")
-        
-        # Test port status
-        try:
-            test_port_status(switch_api, command_manager, logger)
-            test_results.append(("Port Status", True))
-        except Exception as e:
-            test_results.append(("Port Status", False, str(e)))
-        
-        # Test port configuration
-        try:
-            test_port_configuration(switch_api, command_manager, logger)
-            test_results.append(("Port Configuration", True))
-        except Exception as e:
-            test_results.append(("Port Configuration", False, str(e)))
-        
-        # Test port security
-        try:
-            test_port_security(switch_api, command_manager, logger)
-            test_results.append(("Port Security", True))
-        except Exception as e:
-            test_results.append(("Port Security", False, str(e)))
-        
-        # Test port channel
-        try:
-            test_port_channel(switch_api, command_manager, logger)
-            test_results.append(("Port Channel", True))
-        except Exception as e:
-            test_results.append(("Port Channel", False, str(e)))
-        
-        # Log test results
-        logger.info("\nPort Test Suite Results:")
-        logger.info("-" * 50)
-        all_passed = True
-        for test_name, *result in test_results:
-            if len(result) == 1 and result[0]:  # Test passed
-                logger.info(f"[PASS] {test_name}")
-            else:  # Test failed
-                all_passed = False
-                error_msg = result[1] if len(result) > 1 else "Unknown error"
-                logger.error(f"[FAIL] {test_name}: {error_msg}")
-        logger.info("-" * 50)
-        
-        return all_passed
+    test_functions = [
+        test_port_status,
+        test_port_configuration,
+        test_port_security,
+        test_port_channel
+    ]
     
-    except Exception as e:
-        logger.error(f"Port test suite failed: {e}")
-        return False
+    passed_tests = 0
+    total_tests = len(test_functions)
+    
+    # Set up test environment
+    logger.info("Setting up test environment")
+    setup_test_environment(switch_api, command_manager)
+    
+    for test_func in test_functions:
+        try:
+            test_func(switch_api, command_manager, logger)
+            passed_tests += 1
+        except Exception as e:
+            logger.error(f"Test {test_func.__name__} failed: {str(e)}")
+            continue
+    
+    logger.info(f"Port test suite completed: {passed_tests}/{total_tests} tests passed")
+    return passed_tests == total_tests
 
 def main():
     """Main function for running port tests"""
